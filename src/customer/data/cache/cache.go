@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -18,18 +19,51 @@ const (
     CONNECTION_ERROR = "connection to cache failed"
 )
 
+type CustomerTransactions struct {
+    models.Customer
+    TransactionIds []uint
+}
+
 func (c Cache) GetTransactionIds(id uint) []uint {
     conn := c.conn
     if conn == nil {
         log.Println(CONNECTION_ERROR)
         return nil
     }
+    db := models.GetConn()
+
     ctx := context.Background()
-    result := conn.Get(ctx, fmt.Sprintf("customers:%d", uint(id)))
+    result := conn.Get(ctx, fmt.Sprintf("customer:%d", uint(id)))
     if result.Err() != nil {
+        var customer models.Customer
+        db.Where("id = ?", id).Preload("Transactions").First(&customer)
+        ids := []uint{}
+        for _, transaction := range customer.Transactions {
+            ids = append(ids, transaction.TransactionID)
+        }
+        customer.Transactions = nil
+        str, err := json.Marshal(&CustomerTransactions{
+            Customer: customer,
+            TransactionIds: ids,
+        })
+
+        if err != nil {
+            log.Println(fmt.Sprintf("failed to cache response to transaction ids customer:%d", uint(id)))
+        } else {
+            conn.Set(ctx, fmt.Sprintf("customer:%d", uint(id)), string(str), 0)
+        }
+
+        return ids
     }
 
-    return nil
+    var customer CustomerTransactions
+    err := json.Unmarshal([]byte(result.Val()), &customer)
+    if err != nil {
+        log.Println(fmt.Sprintf("request for customer:%d transaction ids failed", uint(id)))
+        return nil
+    }
+
+    return customer.TransactionIds
 }
 
 func (c Cache) GetSortedCustomers(pageSize int, page int) []models.Customer {
