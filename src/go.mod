@@ -1,4 +1,4 @@
-module github.com/merzouka/analytics.go/api
+module github.com/merzouka/analytics.go
 
 go 1.22.4
 

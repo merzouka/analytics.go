@@ -1,9 +1,9 @@
 package data
 
 import (
-	"github.com/merzouka/analytics.go/api/customer/data/cache"
-	"github.com/merzouka/analytics.go/api/customer/data/db"
-	"github.com/merzouka/analytics.go/api/customer/models"
+	"github.com/merzouka/analytics.go/customer/data/cache"
+	"github.com/merzouka/analytics.go/customer/data/db"
+	"github.com/merzouka/analytics.go/customer/data/models"
 )
 
 type DataSource interface{
