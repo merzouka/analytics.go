@@ -17,7 +17,7 @@ func setLogger() *os.File {
         log.Fatal("failed to open logs file")
     }
 
-    prefix := os.Getenv("SERVICE")
+    prefix := os.Getenv("SERVICE_NAME")
     if prefix != "" {
         prefix = fmt.Sprintf("[%s] ", prefix)
     }

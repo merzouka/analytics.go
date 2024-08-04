@@ -8,23 +8,23 @@ import (
 
 type DataSource interface{
     GetTransactionIds(id uint) []uint;
-    GetSortedCustomers(pageSize int, page int) []models.Customer;
+    GetSortedCustomers(pageSize string, page string) []models.Customer;
     GetCustomersForTransactions(ids []uint) []models.Customer;
     GetCustomersByName(name string) []models.Customer;
 }
 
-var retrivers DataSource
+var source DataSource
 
 func UseCache() *DataSource {
-    retrivers = cache.GetInstance()
-    return &retrivers
+    source = cache.GetInstance()
+    return &source
 }
 
 func UseDB() *DataSource {
-    retrivers = db.GetInstance()
-    return &retrivers
+    source = db.GetInstance()
+    return &source
 }
 
-func GetRetrievers() *DataSource {
-    return &retrivers
+func GetSource() *DataSource {
+    return &source
 }

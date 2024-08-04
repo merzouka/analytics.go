@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: api-db
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: customer
+      type: api
+      mode: db
+  template:
+    metadata:
+      labels:
+        app: customer
+        type: api
+        mode: db
+    spec:
+      os: { name: linux }
+      nodeSelector:
+        kubernetes.io/os: linux
+      volumes:
+        - name: log_dir
+          hostPath:
+            path: /logs/customer/api/db
+            type: DirectoryOrCreate
+      env:
+        - name: MODE
+          value: db
+        - name: SERVICE_NAME
+          value: customer-db
+        - name: LOGS_PATH
+          value: /logs/log
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: storage-secrets
+              key: db-url
+      containers:
+        - name: api
+          image: vmerv/analytics-customer
+          ports:
+            - name: main
+              containerPort: 8080
+          volumeMounts:
+            - name: log_dir
+              mountPath: /logs
+
+---
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: api-cache
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: customer
+      type: api
+      mode: cache
+  template:
+    metadata:
+      labels:
+        app: customer
+        type: api
+        mode: cache
+    spec:
+      os: { name: linux }
+      nodeSelector:
+        kubernetes.io/os: linux
+      volumes:
+        - name: log_dir
+          hostPath:
+            path: /logs/customer/api/cache
+            type: DirectoryOrCreate
+      env:
+        - name: MODE
+          value: CACHE
+        - name: SERVICE_NAME
+          value: customer-cache
+        - name: LOGS_PATH
+          value: /logs/log
+        - name: DB_URL
+          valueFrom:
+            secretKeyRef:
+              name: storage-secrets
+              key: db-url
+        - name: CACHE_URL
+          valueFrom:
+            secretKeyRef:
+              name: storage-secrets
+              key: cache-url
+        - name: CACHE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: storage-secrets
+              key: cache-password
+      containers:
+        - name: api
+          image: vmerv/analytics-customer
+          ports:
+            - name: main
+              containerPort: 8080
+          volumeMounts:
+            - name: log_dir
+              mountPath: /logs

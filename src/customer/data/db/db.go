@@ -33,7 +33,7 @@ func (db DB) GetTransactionIds(id uint) []uint {
     return ids
 }
 
-func (db DB) GetSortedCustomers(pageSize int, page int) []models.Customer {
+func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
     conn := db.conn
     if conn == nil {
         log.Println(DATABASE_CONNECTION_ERROR)

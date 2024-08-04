@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -19,7 +20,7 @@ func GetConn() *gorm.DB {
     dsn := os.Getenv("DB_URL")
     db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
-        log.Println(err)
+        log.Println(fmt.Sprintf("failed to connect to database, error: %s", err.Error()))
         return nil
     }
 
