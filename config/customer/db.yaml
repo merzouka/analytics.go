@@ -1,1 +1,58 @@
-apiVersion: 
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: init
+  labels:
+    type: init
+    target: postgres
+spec:
+  capacity:
+    storage: 200Mi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: init
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /init/customer
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: init-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 200Mi
+    limits:
+      storage: 500Mi
+  storageClassName: init
+  selector:
+    matchLabels:
+      type: init
+      target: postgres
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-loader
+  labels:
+    type: helper
+spec:
+  volumes:
+    - name: init
+      persistentVolumeClaim:
+        claimName: init-claim
+  containers:
+    - name: main
+      image: alpine:3.14
+      command: [ "sleep", "10m" ]
+      volumeMounts:
+        - name: init
+          mountPath: /init
+
+
