@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -41,8 +42,7 @@ func printProgress(current, total uint64, legend string) {
 }
 
 func getRows(key string) uint64 {
-    // configStr := os.Getenv("ROWS_NUMBER")
-    configStr := "customers,transactions"
+    configStr := os.Getenv("ROWS_NUMBER")
     rowsMap := map[string]uint64{}
 
     for _, tableRows := range strings.Split(configStr, ",") {
@@ -76,8 +76,10 @@ func seed() {
         appender.AddCustomer(&model)
         printProgress(i, rows, "seeding customers...")
     }
-    appender.Finalize()
-    log.Println("seeding customers succeeded")
+    if rows > 0 {
+        appender.Finalize()
+        log.Println("seeding customers succeeded")
+    }
 
     rows = getRows("transactions")
     finalId := id
@@ -88,8 +90,10 @@ func seed() {
         appender.AddTransaction(&model)
         printProgress(i, rows, "seeding transactions...")
     }
-    appender.Finalize()
-    log.Println("seeding transactions succeeded")
+    if rows > 0 {
+        appender.Finalize()
+        log.Println("seeding transactions succeeded")
+    }
 }
 
 func main() {
