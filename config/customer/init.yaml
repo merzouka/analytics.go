@@ -36,6 +36,44 @@ spec:
       type: init
       target: postgres
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data
+  labels:
+    type: data
+    target: postgres
+spec:
+  capacity:
+    storage: 5Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  storageClassName: data
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: /data/customer/database
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-claim
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+    limits:
+      storage: 6Gi
+  storageClassName: data
+  selector:
+    matchLabels:
+      type: data
+      target: postgres
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -50,7 +88,10 @@ spec:
         - name: init
           persistentVolumeClaim:
             claimName: init-claim 
-      containers:
+        - name: data
+          persistentVolumeClaim:
+            claimName: data-claim
+      initContainers:
         - name: seeder
           image: vmerv/analytics-seeder-customer
           env:
@@ -59,9 +100,27 @@ spec:
             - name: OUTPUT_DESTINATION
               value: /init/init.sql
             - name: ROWS_NUMBER
-              value: "customers:1000000,transcations:4000000"
+              value: "customers:10000,transactions:40000"
           volumeMounts:
             - name: init
               mountPath: /init
+      containers:
+        - name: loader
+          image: postgres:alpine
+          env:
+            - name: POSTGRES_USER
+              value: docker
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: db-password
+            - name: POSTGRES_DB
+              value: customerdb
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+            - name: init
+              mountPath: /docker-entrypoint-initdb.d/
       restartPolicy: Never
   backoffLimit: 4

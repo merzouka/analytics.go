@@ -1,5 +1,6 @@
 #!/bin/bash
 
+kind create cluster --name analytics
 kubectl apply -f namespace.yaml
 kubectl config set-context --current --namespace customer
 

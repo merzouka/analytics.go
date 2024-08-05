@@ -67,9 +67,7 @@ func getRows(key string) uint64 {
     return rowsMap[key] 
 }
 
-func seed() {
-    appender := getAppender()
-
+func seed(appender Appender) {
     rows := getRows("customers")
     for i := uint64(0); i < rows; i++ {
         model := generateCustomer()
@@ -96,6 +94,12 @@ func seed() {
     }
 }
 
+func define() {
+}
+
 func main() {
-    seed()
+    appender := getAppender()
+    appender.Define()
+    defer appender.Close()
+    seed(appender)
 }

@@ -11,6 +11,7 @@ import (
 )
 
 type Appender interface {
+    Define()
     AddCustomer(*Customer)
     AddTransaction(*Transaction)
     Finalize()
@@ -29,6 +30,15 @@ type File struct {
 const (
     WRITER_ERROR = "connection to writer failed"
 ) 
+
+func (db DB) Define() {
+    conn := db.conn
+    if conn == nil {
+        log.Fatal(WRITER_ERROR)
+    }
+
+    conn.AutoMigrate(&Customer{}, &Transaction{})
+}
 
 func (db DB) AddCustomer(customer *Customer) {
     conn := db.conn
@@ -54,6 +64,19 @@ func (db DB) Close() {
         return
     }
     conn.Close()
+}
+
+func (f File) Define() {
+    ptr := f.ptr
+    if ptr == nil {
+        log.Fatal(WRITER_ERROR)
+    }
+
+    _, err := ptr.Write([]byte("CREATE TABLE IF NOT EXISTS customers (id serial primary key, name varchar(255), age int, country varchar(255), language varchar(50));\nCREATE TABLE IF NOT EXISTS transactions (customer_id bigint references customers(id), transaction_id bigint);"))
+    if err != nil {
+        log.Println(fmt.Sprintf("failed to customers write table definition, error: %s", err))
+        return
+    }
 }
 
 func (f *File) AddCustomer(customer *Customer) {
