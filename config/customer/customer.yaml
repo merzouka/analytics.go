@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Deployment
 metadata:
+  namespace: customer
   name: api-db
 spec:
   replicas: 2
@@ -11,6 +12,7 @@ spec:
       mode: db
   template:
     metadata:
+      namespace: customer
       labels:
         app: customer
         type: api
@@ -50,6 +52,7 @@ spec:
 apiVersion: v1
 kind: Deployment
 metadata:
+  namespace: customer
   name: api-cache
 spec:
   replicas: 2
@@ -60,6 +63,7 @@ spec:
       mode: cache
   template:
     metadata:
+      namespace: customer
       labels:
         app: customer
         type: api
