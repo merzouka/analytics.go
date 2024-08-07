@@ -23,7 +23,8 @@ type DB struct {
 }
 
 type File struct {
-    ptr *os.File
+    def *os.File
+    data *os.File
     written bool
 }
 
@@ -67,7 +68,7 @@ func (db DB) Close() {
 }
 
 func (f File) Define() {
-    ptr := f.ptr
+    ptr := f.def
     if ptr == nil {
         log.Fatal(WRITER_ERROR)
     }
@@ -80,7 +81,7 @@ func (f File) Define() {
 }
 
 func (f *File) AddCustomer(customer *Customer) {
-    ptr := f.ptr
+    ptr := f.data
     if ptr == nil {
         log.Fatal(WRITER_ERROR)
     }
@@ -96,7 +97,7 @@ func (f *File) AddCustomer(customer *Customer) {
 }
 
 func (f *File) AddTransaction(transaction *Transaction) {
-    ptr := f.ptr
+    ptr := f.data
     if ptr == nil {
         log.Fatal(WRITER_ERROR)
     }
@@ -112,7 +113,7 @@ func (f *File) AddTransaction(transaction *Transaction) {
 }
 
 func (f *File) Finalize() {
-    ptr := f.ptr
+    ptr := f.data
     if ptr == nil {
         log.Fatal(WRITER_ERROR)
     }
@@ -121,7 +122,7 @@ func (f *File) Finalize() {
 }
 
 func (f File) Close() {
-    f.ptr.Close()
+    f.data.Close()
 }
 
 func getAppender() Appender {
@@ -132,7 +133,7 @@ func getAppender() Appender {
 
     dest := os.Getenv("OUTPUT_DESTINATION")
     if dest == "" {
-        dest = "./sql/init.sql"
+        dest = "./sql"
     }
 
     if output == "DATABASE" {
@@ -148,12 +149,19 @@ func getFile(dest string) *File {
         return file
     }
 
-    ptr, err := os.Create(dest)
+    data, err := os.Create(fmt.Sprintf("%s/data.sql", dest))
     if err != nil {
         log.Fatal(WRITER_ERROR)
     }
+
+    def, err := os.OpenFile(fmt.Sprintf("%s/def.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
+    if err != nil {
+        log.Fatal(WRITER_ERROR)
+    }
+
     file = &File{
-        ptr: ptr,
+        def: def,
+        data: data,
         written: false,
     }
 
