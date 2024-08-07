@@ -4,8 +4,8 @@ metadata:
   namespace: customer
   name: cache
   labels:
-    type: cache
-    target: redis
+    app: redis
+    usage: storage
 spec:
   accessModes:
     - ReadWriteMany
@@ -17,4 +17,61 @@ spec:
   hostPath:
     path: /data/customer/cache
     type: DirectoryOrCreate
-
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metdata:
+  namespace: customer
+  name: cache-set
+spec:
+  selector:
+    matchLabels:
+      app: redis
+      usage: handler
+    replicas: 3
+    template:
+      metadata:
+        namespace: customer
+        labels:
+          app: redis
+          usage: handler
+      spec:
+        containers:
+          - name: redis
+            image: redis:alpine
+            ports:
+              - name: redis
+                containerPort: 6379
+            volumeMounts:
+              - name: redis-data
+                mountPath: /data
+    volumeClaimTemplate:
+      - metadata:
+          name: redis-data
+        spec:
+          accessModes:
+            - ReadWriteMany
+          storageClassName: cache
+          volumeMode: Filesystem
+          resources:
+            requests:
+              storage: 3Gi
+            limits:
+              storage: 4Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: customer
+  name: cache-service
+  labels:
+    app: redis
+    usage: service
+spec:
+  selector:
+    app: redis
+    usage: handler
+  ports:
+    - port: 6379
+      targetPort: 6379
+      name: redis

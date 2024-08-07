@@ -4,8 +4,8 @@ metadata:
   namespace: customer
   name: init
   labels:
-    type: init
-    target: postgres
+    app: postgres
+    usage: init
 spec:
   capacity:
     storage: 200Mi
@@ -35,8 +35,8 @@ spec:
   storageClassName: init
   selector:
     matchLabels:
-      type: init
-      target: postgres
+      app: postgres
+      usage: init
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -44,8 +44,8 @@ metadata:
   namespace: customer
   name: database
   labels:
-    type: database
-    target: postgres
+    app: postgres
+    usage: storage
 spec:
   capacity:
     storage: 5Gi
@@ -75,8 +75,8 @@ spec:
   storageClassName: database
   selector:
     matchLabels:
-      type: database
-      target: postgres
+      usage: storage
+      app: postgres
 ---
 apiVersion: batch/v1
 kind: Job

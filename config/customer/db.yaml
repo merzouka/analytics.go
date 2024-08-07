@@ -4,25 +4,22 @@ kind: StatefulSet
 metadata:
   namespace: customer
   name: db-set
-  labels:
-    type: database
-    tech: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      db: postgres
-      app: database
+      app: postgres
+      usage: handler
   template:
     metadata:
       namespace: customer
       labels:
-        db: postgres
-        app: database
+        app: postgres
+        usage: handler
     spec:
       containers:
         - name: db
-          image: postgres
+          image: postgres:alpine
           env:
             - name: POSTGRES_DB
               value: customerdb
@@ -50,8 +47,8 @@ spec:
         storageClassName: database
         selector:
           matchLabels:
-            type: database
-            target: postgres
+            app: postgres
+            usage: storage
         volumeMode: Filesystem
         accessModes:
           - ReadWriteMany
@@ -63,8 +60,8 @@ metadata:
   name: db-service
 spec:
   selector:
-    db: postgres
-    app: database
+    app: postgres
+    usage: handler
   ports:
     - name: main
       targetPort: 5432
