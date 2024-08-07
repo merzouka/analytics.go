@@ -90,7 +90,7 @@ func (f *File) AddCustomer(customer *Customer) {
     if f.written {
         row = ",\n" + row
     } else {
-        row = "INSERT INTO customers (id, name, age) VALUES " + row
+        row = "TRUNCATE TABLE customers RESTART IDENTITY CASCADE;\nINSERT INTO customers (id, name, age) VALUES " + row
         f.written = true
     }
     ptr.Write([]byte(row))
@@ -106,7 +106,7 @@ func (f *File) AddTransaction(transaction *Transaction) {
     if f.written {
         row = ",\n" + row
     } else {
-        row = "INSERT INTO transactions (customer_id, transaction_id) VALUES " + row
+        row = "TRUNCATE TABLE transactions RESTART IDENTITY;\nINSERT INTO transactions (customer_id, transaction_id) VALUES " + row
         f.written = true
     }
     ptr.Write([]byte(row))
@@ -149,15 +149,17 @@ func getFile(dest string) *File {
         return file
     }
 
-    data, err := os.Create(fmt.Sprintf("%s/data.sql", dest))
+    data, err := os.Create(fmt.Sprintf("%s/02-populate-tables.sql", dest))
     if err != nil {
         log.Fatal(err)
     }
+    log.Println("created data file pointer")
 
-    def, err := os.OpenFile(fmt.Sprintf("%s/def.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
+    def, err := os.OpenFile(fmt.Sprintf("%s/01-create-tables.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
     if err != nil {
         log.Fatal(err)
     }
+    log.Println("created def file pointer")
 
     file = &File{
         def: def,

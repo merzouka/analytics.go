@@ -9,8 +9,6 @@ import (
 
 
 func main() {
-    defer setLogger().Close()
-
     router := gin.Default()
 
     router.GET("/ping", func(ctx *gin.Context) {

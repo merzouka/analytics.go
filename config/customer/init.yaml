@@ -38,46 +38,6 @@ spec:
       app: postgres
       usage: init
 ---
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  namespace: customer
-  name: database
-  labels:
-    app: postgres
-    usage: storage
-spec:
-  capacity:
-    storage: 5Gi
-  volumeMode: Filesystem
-  accessModes:
-    - ReadWriteMany
-  storageClassName: database
-  persistentVolumeReclaimPolicy: Retain
-  hostPath:
-    path: /data/customer/database
-    type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  namespace: customer
-  name: data-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 5Gi
-    limits:
-      storage: 6Gi
-  storageClassName: database
-  selector:
-    matchLabels:
-      usage: storage
-      app: postgres
----
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -94,10 +54,7 @@ spec:
         - name: init
           persistentVolumeClaim:
             claimName: init-claim 
-        - name: data
-          persistentVolumeClaim:
-            claimName: data-claim
-      initContainers:
+      containers:
         - name: seeder
           image: vmerv/analytics-seeder-customer
           env:
@@ -110,23 +67,5 @@ spec:
           volumeMounts:
             - name: init
               mountPath: /init
-      containers:
-        - name: loader
-          image: postgres:alpine
-          env:
-            - name: POSTGRES_USER
-              value: docker
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-secret
-                  key: db-password
-            - name: POSTGRES_DB
-              value: customerdb
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-            - name: init
-              mountPath: /docker-entrypoint-initdb.d/
       restartPolicy: Never
   backoffLimit: 4

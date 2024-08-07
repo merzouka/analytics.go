@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   namespace: customer
-  name: cache
+  name: cache-storage
   labels:
     app: redis
     usage: storage
@@ -20,7 +20,7 @@ spec:
 ---
 apiVersion: apps/v1
 kind: StatefulSet
-metdata:
+metadata:
   namespace: customer
   name: cache-set
 spec:
@@ -28,42 +28,49 @@ spec:
     matchLabels:
       app: redis
       usage: handler
-    replicas: 3
-    template:
-      metadata:
-        namespace: customer
-        labels:
-          app: redis
-          usage: handler
+  replicas: 1
+  template:
+    metadata:
+      namespace: customer
+      labels:
+        app: redis
+        usage: handler
+    spec:
+      containers:
+        - name: redis
+          command: [ "sh", "-c", "redis-server --requirepass $REDIS_PASSWORD" ]
+          image: redis:alpine
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: customer-secrets
+                  key: cache-password
+          ports:
+            - name: redis
+              containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-data
       spec:
-        containers:
-          - name: redis
-            image: redis:alpine
-            ports:
-              - name: redis
-                containerPort: 6379
-            volumeMounts:
-              - name: redis-data
-                mountPath: /data
-    volumeClaimTemplate:
-      - metadata:
-          name: redis-data
-        spec:
-          accessModes:
-            - ReadWriteMany
-          storageClassName: cache
-          volumeMode: Filesystem
-          resources:
-            requests:
-              storage: 3Gi
-            limits:
-              storage: 4Gi
+        accessModes:
+          - ReadWriteMany
+        storageClassName: cache
+        volumeMode: Filesystem
+        resources:
+          requests:
+            storage: 3Gi
+          limits:
+            storage: 4Gi
 ---
 apiVersion: v1
 kind: Service
 metadata:
   namespace: customer
-  name: cache-service
+  name: cache
   labels:
     app: redis
     usage: service
