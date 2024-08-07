@@ -42,9 +42,9 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   namespace: customer
-  name: data
+  name: database
   labels:
-    type: data
+    type: database
     target: postgres
 spec:
   capacity:
@@ -52,7 +52,7 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
-  storageClassName: data
+  storageClassName: database
   persistentVolumeReclaimPolicy: Retain
   hostPath:
     path: /data/customer/database
@@ -72,10 +72,10 @@ spec:
       storage: 5Gi
     limits:
       storage: 6Gi
-  storageClassName: data
+  storageClassName: database
   selector:
     matchLabels:
-      type: data
+      type: database
       target: postgres
 ---
 apiVersion: batch/v1
@@ -113,7 +113,6 @@ spec:
       containers:
         - name: loader
           image: postgres:alpine
-          # command: [ "/bin/sh", "-c", "su postgres -c \"pg_ctl start -D $PG_DATA\" && psql -U $POSTGRES_USER -h localhost -p 5432 -d $POSTGRES_DB -a -f /init/data.sql" ]
           env:
             - name: POSTGRES_USER
               value: docker

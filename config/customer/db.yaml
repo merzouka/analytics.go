@@ -50,8 +50,8 @@ spec:
         storageClassName: database
         selector:
           matchLabels:
-            type: storage
-            target: database
+            type: database
+            target: postgres
         volumeMode: Filesystem
         accessModes:
           - ReadWriteMany

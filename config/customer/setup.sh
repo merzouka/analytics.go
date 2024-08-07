@@ -20,3 +20,6 @@ kubectl exec $pod -- psql -U docker -d customerdb -h localhost -a -f "$init_fold
 kubectl exec $pod -- psql -U docker -d customerdb -h localhost -a -f "$init_folder/02-populate-tables.sql"
 
 kubectl delete jobs.batch seed
+kubectl delete pvc init-claim
+kubectl delete pv init 
+kubectl delete pvc data-claim
