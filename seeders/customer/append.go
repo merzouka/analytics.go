@@ -151,12 +151,12 @@ func getFile(dest string) *File {
 
     data, err := os.Create(fmt.Sprintf("%s/data.sql", dest))
     if err != nil {
-        log.Fatal(WRITER_ERROR)
+        log.Fatal(err)
     }
 
     def, err := os.OpenFile(fmt.Sprintf("%s/def.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
     if err != nil {
-        log.Fatal(WRITER_ERROR)
+        log.Fatal(err)
     }
 
     file = &File{

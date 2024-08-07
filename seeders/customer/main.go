@@ -94,9 +94,6 @@ func seed(appender Appender) {
     }
 }
 
-func define() {
-}
-
 func main() {
     appender := getAppender()
     appender.Define()
