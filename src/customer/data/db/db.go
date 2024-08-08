@@ -16,6 +16,16 @@ type DB struct{
     conn *gorm.DB
 }
 
+func (db DB) Close() {
+    sqlDB, err := models.GetConn().DB()
+    if err != nil {
+        log.Println("closing database connection failed")
+        return
+    }
+
+    sqlDB.Close()
+}
+
 func (db DB) GetTransactionIds(id uint) []uint {
     conn := db.conn
     if conn == nil {

@@ -11,6 +11,7 @@ type DataSource interface{
     GetSortedCustomers(pageSize string, page string) []models.Customer;
     GetCustomersForTransactions(ids []uint) []models.Customer;
     GetCustomersByName(name string) []models.Customer;
+    Close()
 }
 
 var source DataSource

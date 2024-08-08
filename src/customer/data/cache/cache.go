@@ -25,6 +25,19 @@ type CustomerTransactions struct {
     TransactionIds []uint
 }
 
+func (c Cache) Close() {
+    cache := c.conn
+    db := models.GetConn()
+    cache.Close()
+    sqlDB, err := db.DB()
+    if err != nil {
+        log.Println("closing database connection failed")
+        return
+    }
+
+    sqlDB.Close()
+}
+
 func (c Cache) GetTransactionIds(id uint) []uint {
     conn := c.conn
     if conn == nil {
@@ -167,6 +180,13 @@ func GetInstance() *Cache {
         Password: password,
         DB: 0,
     })
+
+    err := client.Ping(context.Background()).Err()
+    if err != nil {
+        log.Println(CACHE_CONNECTION_ERROR)
+        return nil
+    }
+
     cache = &Cache{
         conn: client,
     }

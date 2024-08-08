@@ -10,6 +10,7 @@ import (
 
 func main() {
     router := gin.Default()
+    defer getSource().Close()
 
     router.GET("/ping", func(ctx *gin.Context) {
         ctx.String(http.StatusOK, "PONG\n")
