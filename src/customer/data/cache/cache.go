@@ -186,6 +186,7 @@ func GetInstance() *Cache {
         log.Println(CACHE_CONNECTION_ERROR)
         return nil
     }
+    log.Println("connected to cache successfully")
 
     cache = &Cache{
         conn: client,
