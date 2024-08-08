@@ -58,11 +58,11 @@ func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
         Order("count(customer_id) DESC").
         Scopes(helpers.Paginate(pageSize, page))
 
-    result := conn.Where("id in (?)", ids).Find(&customers)
-    if result.Error != nil {
+    if conn.Where("id in (?)", ids).Preload("Transactions").Find(&customers).Error != nil {
         log.Println("failed to retrieve customers")
         return nil
     }
+
     return customers
 }
 

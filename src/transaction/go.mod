@@ -1,4 +1,4 @@
-module github.com/merzouka/analytics.go/api/transaction
+module github.com/merzouka/analytics.go/transaction
 
 go 1.22.4
 

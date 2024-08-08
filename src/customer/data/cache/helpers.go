@@ -64,6 +64,7 @@ func cacheCustomers(client *redis.Client, customers []models.Customer) error {
         }
 
         cachableCustomer.TransactionIds = ids
+        cachableCustomer.Customer.Transactions = nil
         jsonCustomer, err := json.Marshal(&cachableCustomer)
         if err != nil {
             failed = append(failed, customer.ID)
