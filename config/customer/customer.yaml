@@ -20,6 +20,7 @@ spec:
     spec:
       containers:
         - name: api
+          image: vmerv/analytics-customer
           env:
             - name: MODE
               value: CACHE
@@ -38,7 +39,6 @@ spec:
                 secretKeyRef:
                   name: customer-secrets
                   key: cache-password
-          image: vmerv/analytics-customer
           ports:
             - name: main
               containerPort: 8080
@@ -54,7 +54,7 @@ spec:
     mode: cache
   ports:
     - name: main
-      port: 80
+      port: 8080
       targetPort: 8080
 ---
 apiVersion: apps/v1
@@ -79,6 +79,7 @@ spec:
     spec:
       containers:
         - name: api
+          image: vmerv/analytics-customer
           env:
             - name: MODE
               value: DB
@@ -87,7 +88,6 @@ spec:
                 secretKeyRef:
                   name: customer-secrets
                   key: db-url
-          image: vmerv/analytics-customer
           ports:
             - name: main
               containerPort: 8080
@@ -103,5 +103,5 @@ spec:
     mode: db
   ports:
     - name: main
-      port: 80
+      port: 8080
       targetPort: 8080

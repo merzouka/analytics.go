@@ -101,6 +101,6 @@ spec:
     app: postgres
     usage: handler
   ports:
-    - name: main
+    - protocol: TCP
       targetPort: 5432
       port: 5432
