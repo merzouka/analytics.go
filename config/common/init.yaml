@@ -14,7 +14,7 @@ spec:
   storageClassName: init
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /init/customer
+    path: /init/{{ns}}
     type: DirectoryOrCreate
 ---
 apiVersion: v1
@@ -52,14 +52,14 @@ spec:
             claimName: init-claim 
       containers:
         - name: seeder
-          image: vmerv/analytics-seeder-customer
+          image: {{seeder-image}}
           env:
             - name: OUTPUT_MEDIUM
               value: FILE
             - name: OUTPUT_DESTINATION
               value: /init
             - name: ROWS_NUMBER
-              value: "customers:1000000,transactions:4000000"
+              value: "{{seeder-rows}}"
           volumeMounts:
             - name: init
               mountPath: /init

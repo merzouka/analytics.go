@@ -1,6 +1,6 @@
 #!/bin/bash
 
-service="customer"
+service="product"
 
 kubectl apply -f namespace.yaml
 kubectl config set-context --current --namespace $service
@@ -10,7 +10,7 @@ get_service_url () {
 }
 
 db_service="database"
-db_name="$servicedb"
+db_name="$service""db"
 db_password=$(echo -n $(cat .db))
 db_url="postgres://docker:$db_password/$db_service.$service.svc.cluster.local:5432/$db_name"
 kubectl create secret generic db-secret --from-literal=db-password=$db_password

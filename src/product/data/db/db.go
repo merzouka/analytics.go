@@ -23,6 +23,7 @@ func Get() *DB {
 
     dsn := os.Getenv("DB_URL")
     var err error
+    db = &DB{}
     db.conn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{}) 
     if err != nil {
         log.Println(err)

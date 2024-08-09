@@ -14,7 +14,7 @@ spec:
   capacity:
     storage: 3Gi
   hostPath:
-    path: /data/customer/cache
+    path: /data/product/cache
     type: DirectoryOrCreate
 ---
 apiVersion: apps/v1

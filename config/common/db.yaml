@@ -14,7 +14,7 @@ spec:
   storageClassName: database
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /data/customer/database
+    path: /data/{{ns}}/database
     type: DirectoryOrCreate
 ---
 apiVersion: apps/v1
@@ -38,7 +38,7 @@ spec:
           image: postgres:alpine
           env:
             - name: POSTGRES_DB
-              value: customerdb
+              value: {{db-name}}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

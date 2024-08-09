@@ -1,43 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: customer
   name: api-cache
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: customer
+      app: product
       type: api
       mode: cache
   template:
     metadata:
-      namespace: customer
       labels:
-        app: customer
+        app: product
         type: api
         mode: cache
     spec:
       containers:
         - name: api
-          image: vmerv/analytics-customer
+          image: vmerv/analytics-product
           env:
             - name: MODE
               value: CACHE
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
-                  name: customer-secrets
+                  name: service-secrets
                   key: db-url
             - name: CACHE_URL
               valueFrom:
                 secretKeyRef:
-                  name: customer-secrets
+                  name: service-secrets
                   key: cache-url
             - name: CACHE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: customer-secrets
+                  name: service-secrets
                   key: cache-password
           ports:
             - name: main
@@ -46,10 +44,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: customer-cache
+  name: product-cache
 spec:
   selector:
-    app: customer
+    app: 
     type: api
     mode: cache
   ports:
@@ -60,33 +58,31 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: customer
   name: api-db
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: customer
+      app: product
       type: api
       mode: db
   template:
     metadata:
-      namespace: customer
       labels:
-        app: customer
+        app: product
         type: api
         mode: db
     spec:
       containers:
         - name: api
-          image: vmerv/analytics-customer
+          image: vmerv/analytics-product
           env:
             - name: MODE
               value: DB
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
-                  name: customer-secrets
+                  name: service-secrets
                   key: db-url
           ports:
             - name: main
@@ -95,10 +91,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: customer-db
+  name: product-db
 spec:
   selector:
-    app: customer
+    app: product
     type: api
     mode: db
   ports:

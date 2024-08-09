@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
+  namespace: product
   name: init
   labels:
     app: postgres
@@ -14,12 +15,13 @@ spec:
   storageClassName: init
   persistentVolumeReclaimPolicy: Retain
   hostPath:
-    path: /init/customer
+    path: /init/product
     type: DirectoryOrCreate
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  namespace: product
   name: init-claim
 spec:
   accessModes:
@@ -39,10 +41,12 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
+  namespace: product
   name: seed
 spec:
   template:
     metadata:
+      namespace: product
       labels:
         type: seeder
     spec:
@@ -52,14 +56,14 @@ spec:
             claimName: init-claim 
       containers:
         - name: seeder
-          image: vmerv/analytics-seeder-customer
+          image: vmerv/analytics-seeder-product
           env:
             - name: OUTPUT_MEDIUM
               value: FILE
             - name: OUTPUT_DESTINATION
               value: /init
             - name: ROWS_NUMBER
-              value: "customers:1000000,transactions:4000000"
+              value: "{{seeder-rows}}"
           volumeMounts:
             - name: init
               mountPath: /init

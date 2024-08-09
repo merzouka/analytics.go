@@ -16,7 +16,7 @@ type Retriever interface {
 var retriever Retriever
 
 func GetRetriever() Retriever {
-    if retriever == nil {
+    if retriever != nil {
         return nil
     }
     mode := os.Getenv("")
