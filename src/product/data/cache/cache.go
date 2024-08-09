@@ -37,12 +37,16 @@ func Get() *Cache {
         DB: 0,
     })
 
-    if conn.Ping(context.Background()).Err() != nil {
-        log.Println("failed to connect to database")
+    if conn == nil || conn.Ping(context.Background()).Err() != nil {
+        log.Println("failed to connect to cache")
         return nil
     }
 
-    return nil
+    cache = &Cache{
+        conn: conn,
+    }
+
+    return cache
 }
 
 func (cache *Cache) Close() {
@@ -58,6 +62,11 @@ func getCacheKey(id uint) string {
 }
 
 func cacheProducts(cache *redis.Client, products []models.Product) {
+    if cache == nil {
+        log.Println("connection to cache failed")
+        return
+    }
+
     failed := []uint{}
     ctx := context.Background()
     for _, product := range products {
@@ -74,6 +83,10 @@ func cacheProducts(cache *redis.Client, products []models.Product) {
 }
 
 func getProductsFromDB(db *gorm.DB, cache *redis.Client, ids []uint) []models.Product {
+    if db == nil {
+        log.Println("connection to database failed")
+        return nil
+    }
     var products []models.Product
     if db.Where("id in (?)", ids).Find(&products).Error != nil {
         log.Println(fmt.Sprintf("query to database failed, ids: %v", ids))
@@ -85,6 +98,11 @@ func getProductsFromDB(db *gorm.DB, cache *redis.Client, ids []uint) []models.Pr
 }
 
 func getProductsFromCache(cache *redis.Client, ids []uint) ([]models.Product, []uint) {
+    if cache == nil {
+        log.Println("connection to cache failed")
+        return nil, nil
+    }
+
     products := []models.Product{}
     ctx := context.Background()
     misses := []uint{}

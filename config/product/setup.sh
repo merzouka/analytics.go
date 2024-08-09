@@ -12,7 +12,6 @@ get_service_url () {
 db_service="database"
 db_name="$service""db"
 db_password=$(echo -n $(cat .db))
-db_url="postgres://docker:$db_password/$db_service.$service.svc.cluster.local:5432/$db_name"
 kubectl create secret generic db-secret --from-literal=db-password=$db_password
 
 kubectl create secret generic service-secrets \
@@ -21,7 +20,12 @@ kubectl create secret generic service-secrets \
     --from-literal=cache-password=$(echo -n $(cat .cache))
 
 kubectl apply -f init.yaml
+pods=($(kubectl get pods -o name))
+pod=${pods[0]}
+echo $pod
 
+echo "waiting for seeding"
+kubectl wait --for=condition=Ready $pod
 kubectl delete jobs.batch seed
 kubectl delete pvc init-claim
 kubectl patch pv init -p '{"spec":{"claimRef": null}}'

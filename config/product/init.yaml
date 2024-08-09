@@ -7,7 +7,7 @@ metadata:
     usage: init
 spec:
   capacity:
-    storage: 200Mi
+    storage: 800Mi
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
@@ -27,9 +27,9 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: 200Mi
+      storage: 800Mi
     limits:
-      storage: 500Mi
+      storage: 1Gi
   storageClassName: init
   selector:
     matchLabels:
@@ -54,9 +54,7 @@ spec:
         - name: seeder
           image: vmerv/analytics-seeder-product
           env:
-            - name: OUTPUT_MEDIUM
-              value: FILE
-            - name: OUTPUT_DESTINATION
+            - name: OUTPUT_DIR
               value: /init
             - name: ROWS_NUMBER
               value: "product:1000000"
