@@ -1,15 +1,74 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/merzouka/analytics.go/transaction/data"
+)
+
+func getIds(idsStr string) ([]uint, error) {
+    if idsStr == "" {
+        return nil, errors.New("ids must be specified")
+    }
+    ids := []uint{}
+    for _, idStr := range strings.Split(idsStr, ",") {
+        id, err := strconv.ParseUint(idStr, 10, 64)
+        if err != nil {
+            return nil, errors.New(fmt.Sprintf("failed to parse id: %s", idsStr))
+        }
+
+        ids = append(ids, uint(id))
+    }
+
+    return ids, nil
+}
 
 func getTransactionsTotal(ctx *gin.Context) {
+    ids, err := getIds(ctx.Query("ids"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, map[string]string{
+            "error": "bad ids provided",
+        })
+        return
+    }
 
+    retriever := data.GetRetriver()
+    ctx.JSON(http.StatusOK, map[string]interface{}{
+        "result": data.GetTotal(*retriever, ids),
+    })
 }
 
 func getTransaction(ctx *gin.Context) {
+    ids, err := getIds(ctx.Param("id"))
+    if err != nil || len(ids) == 0 {
+        ctx.JSON(http.StatusBadRequest, map[string]string{
+            "error": "bad id provided",
+        })
+        return
+    }
 
+    retriever := data.GetRetriver()
+    ctx.JSON(http.StatusOK, map[string]interface{}{
+        "result": data.GetTransaction(*retriever, ids[0]),
+    })
 }
 
 func getTransactions(ctx *gin.Context) {
+    ids, err := getIds(ctx.Query("ids"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, map[string]string{
+            "error": "bad ids provided",
+        })
+        return
+    }
 
+    retriever := data.GetRetriver()
+    ctx.JSON(http.StatusOK, map[string]interface{}{
+        "result": (*retriever).GetTransactions(ids),
+    })
 }

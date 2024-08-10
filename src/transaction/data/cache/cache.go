@@ -1,16 +1,14 @@
 package cache
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/merzouka/analytics.go/transaction/data/db"
+	"github.com/merzouka/analytics.go/transaction/data/helpers"
 	"github.com/merzouka/analytics.go/transaction/data/models"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -48,12 +46,12 @@ func Get() *Cache  {
     return cache
 }
 
-type TransactionProducts struct {
-    models.Transaction
-    ProductIds []uint
-}
+func (c *Cache) Close() {
+    if c == nil || c.conn == nil {
+        return
+    }
 
-func (c Cache) Close() {
+    c.conn.Close()
 }
 
 func getKey(id uint) string {
@@ -69,9 +67,9 @@ func cacheTransactions(cache *redis.Client, transactions []models.Transaction) {
     failed := []uint{}
     ctx := context.Background()
     for _, transaction := range transactions {
-        ids := extractProductIds(transaction.Products)
+        ids := helpers.ExtractProductIds(transaction.Products)
         transaction.Products = nil
-        value, err := json.Marshal(&TransactionProducts{
+        value, err := json.Marshal(&models.TransactionProductIDs{
             ProductIds: ids,
             Transaction: transaction,
         })
@@ -91,7 +89,7 @@ func cacheTransactions(cache *redis.Client, transactions []models.Transaction) {
 
 func dbQueryTransactions(db *gorm.DB, cache *redis.Client, ids []uint) []models.Transaction {
     if db == nil {
-        log.Println("failed to connection to database")
+        log.Println("connection to database failed")
         return nil
     }
 
@@ -105,12 +103,12 @@ func dbQueryTransactions(db *gorm.DB, cache *redis.Client, ids []uint) []models.
     return transactions
 }
 
-func cacheQueryTransactions(cache *redis.Client, ids []uint) ([]TransactionProducts, []uint) {
+func cacheQueryTransactions(cache *redis.Client, ids []uint) ([]models.TransactionProductIDs, []uint) {
     if cache == nil {
         return nil, nil
     }
     misses := []uint{}
-    transactions := []TransactionProducts{}
+    transactions := []models.TransactionProductIDs{}
     ctx := context.Background()
     for _, id := range ids {
         result := cache.Get(ctx, getKey(id))
@@ -118,7 +116,7 @@ func cacheQueryTransactions(cache *redis.Client, ids []uint) ([]TransactionProdu
             misses = append(misses, id)
         }
 
-        var transaction TransactionProducts
+        var transaction models.TransactionProductIDs
         err := json.Unmarshal([]byte(result.Val()), &transaction)
         if err != nil {
             misses = append(misses, id)
@@ -130,7 +128,7 @@ func cacheQueryTransactions(cache *redis.Client, ids []uint) ([]TransactionProdu
     return transactions, misses
 }
 
-func extractTransactions(transactionProducts []TransactionProducts) []models.Transaction {
+func extractTransactions(transactionProducts []models.TransactionProductIDs) []models.Transaction {
     result := []models.Transaction{}
     for _, transaction := range transactionProducts {
         result = append(result, transaction.Transaction)
@@ -157,59 +155,13 @@ func (c Cache) GetTransactions(ids []uint) []models.Transaction {
     return transactions
 }
 
-type Product struct {
-        ID    uint   `gorm:"primaryKey,autoIncrement" json:"id"`
-        Name  string `json:"name"`
-        Price uint   `json:"price"`
-}
-
-func getProducts(url string, ids []uint) []Product {
-    resp, err := http.Get(url)
-    if err != nil || resp.Body == nil{
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
-        return nil
-    }
-    defer resp.Body.Close()
-
-    buffer := new(bytes.Buffer)
-    _, err = io.Copy(buffer, resp.Body)
-    if err != nil {
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
-        return nil
-    }
-
-    var products []Product
-    if json.Unmarshal(buffer.Bytes(), &products) != nil {
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
-        return nil
-    }
-
-    return products
-}
-
-func extractProductIds(productsArrays ...[]models.Product) []uint {
-    m := map[uint]bool{}
-    for _, products := range productsArrays {
-        for _, product := range products {
-            m[product.ProductID] = true
-        }
-    }
-    ids := []uint{}
-    for id := range m {
-        ids = append(ids, id)
-    }
-
-    return ids
-}
-
-func (c Cache) GetTransaction(id uint) map[string]interface{} {
-    // TODO: move common code out
+func (c Cache) GetTransaction(id uint) *models.TransactionProductIDs {
     cache := c.conn
     if cache == nil {
         return nil
     }
 
-    var transaction TransactionProducts
+    var transaction models.TransactionProductIDs
     result := cache.Get(context.Background(), getKey(id))
     lookup := false
     if result.Err() == nil {
@@ -233,25 +185,11 @@ func (c Cache) GetTransaction(id uint) map[string]interface{} {
             return nil
         }
 
-        transaction = TransactionProducts{
+        transaction = models.TransactionProductIDs{
             Transaction: result,
-            ProductIds: extractProductIds(result.Products),
+            ProductIds: helpers.ExtractProductIds(result.Products),
         }
     }
-
-    str, err := json.Marshal(transaction.Transaction)
-    if err != nil {
-        log.Println(err)
-        return nil
-    }
-    var resp map[string]interface{}
-    err = json.Unmarshal(str, &resp)
-    if err != nil {
-        log.Println(err)
-        return nil
-    }
-
-    url := os.Getenv("PRODUCTS_URL")
-    resp["products"] = getProducts(url, transaction.ProductIds)
-    return resp
+    
+    return &transaction
 }

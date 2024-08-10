@@ -1,0 +1,2 @@
+CREATE TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, client_id BIGINT, created_at TIMESTAMP WITH TIME ZONE);
+CREATE TABLE IF NOT EXISTS transaction_products (transaction_id BIGINT, product_id BIGINT);
