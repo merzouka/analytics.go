@@ -39,14 +39,36 @@ func GetTransaction(retriever Retriever, id uint) map[string]interface{} {
     return result
 }
 
-func GetTotal(retriever Retriever, ids []uint) uint {
+func getCustomerTransactionIds(id uint) []uint {
+    var ids []uint
+    db := db.Get()
+    if db == nil {
+        log.Println("failed to retrieve ids")
+        return nil
+    }
+
+    conn := db.Conn()
+    if conn == nil {
+        log.Println("failed to retrieve ids")
+        return nil
+    }
+
+    if conn.Model(&models.Transaction{}).Where("customer_id = ?", id).Pluck("id", &ids).Error != nil {
+        log.Println("query for ids failed")
+        return nil
+    }
+    return ids
+}
+
+func GetTotal(retriever Retriever, id uint) uint {
     if retriever == nil {
         log.Println("retriever uninitialized")
         return 0
     }
 
+    ids := getCustomerTransactionIds(id)
     transactions := retriever.GetTransactions(ids)
-    productArray := [][]models.Product{}
+    productArray := [][]models.TransactionProduct{}
     for _, transaction := range transactions {
         productArray = append(productArray, transaction.Products)
     }
@@ -60,6 +82,10 @@ func GetTotal(retriever Retriever, ids []uint) uint {
     }
 
     return result
+}
+
+func GetCustomerTransactions(retriever Retriever, id uint) []models.Transaction {
+    return retriever.GetTransactions(getCustomerTransactionIds(id))
 }
 
 func GetRetriver() *Retriever {
@@ -80,3 +106,4 @@ func GetRetriver() *Retriever {
 
     return &retriever
 }
+

@@ -29,17 +29,18 @@ func getIds(idsStr string) ([]uint, error) {
 }
 
 func getTransactionsTotal(ctx *gin.Context) {
-    ids, err := getIds(ctx.Query("ids"))
+    ids, err := getIds(ctx.Query("id"))
     if err != nil {
         ctx.JSON(http.StatusBadRequest, map[string]string{
             "error": "bad ids provided",
         })
         return
     }
+    clientId := ids[0]
 
     retriever := data.GetRetriver()
     ctx.JSON(http.StatusOK, map[string]interface{}{
-        "result": data.GetTotal(*retriever, ids),
+        "result": data.GetTotal(*retriever, clientId),
     })
 }
 
@@ -51,10 +52,11 @@ func getTransaction(ctx *gin.Context) {
         })
         return
     }
+    transactionId := ids[0]
 
     retriever := data.GetRetriver()
     ctx.JSON(http.StatusOK, map[string]interface{}{
-        "result": data.GetTransaction(*retriever, ids[0]),
+        "result": data.GetTransaction(*retriever, transactionId),
     })
 }
 
@@ -71,4 +73,15 @@ func getTransactions(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, map[string]interface{}{
         "result": (*retriever).GetTransactions(ids),
     })
+}
+
+func getCustomerTransactions(ctx *gin.Context) {
+    ids, err := getIds(ctx.Query("id"))
+    if err != nil {
+        ctx.JSON(http.StatusBadRequest, map[string]string{
+            "error": "invalid id provided",
+        })
+        return
+    }
+    clientId := ids[0]
 }

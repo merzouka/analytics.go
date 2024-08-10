@@ -7,7 +7,8 @@ func main() {
 
     router.GET("/transactions/:id", getTransaction)
     router.GET("/transactions", getTransactions)
-    router.GET("/transactions/total", getTransactionsTotal)
+    router.GET("/customers/:id/transactions", getCustomerTransactions)
+    router.GET("/customers/:id/transactions/total", getTransactionsTotal)
 
     router.Run(":8080")
 }

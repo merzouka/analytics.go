@@ -38,7 +38,7 @@ func (c Cache) Close() {
     sqlDB.Close()
 }
 
-func (c Cache) GetTransactionIds(id uint) []uint {
+func (c Cache) GetTransactions(id uint) []uint {
     conn := c.conn
     if conn == nil {
         log.Println(CACHE_CONNECTION_ERROR)

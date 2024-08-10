@@ -26,7 +26,7 @@ func (db DB) Close() {
     sqlDB.Close()
 }
 
-func (db DB) GetTransactionIds(id uint) []uint {
+func (db DB) GetTransactions(id uint) []uint {
     conn := db.conn
     if conn == nil {
         log.Println(DATABASE_CONNECTION_ERROR)
@@ -59,28 +59,6 @@ func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
         Scopes(helpers.Paginate(pageSize, page))
 
     if conn.Where("id in (?)", ids).Preload("Transactions").Find(&customers).Error != nil {
-        log.Println("failed to retrieve customers")
-        return nil
-    }
-
-    return customers
-}
-
-func (db DB) GetCustomersForTransactions(ids []uint) []models.Customer {
-    conn := db.conn
-    if conn == nil {
-        log.Println(DATABASE_CONNECTION_ERROR)
-        return nil
-    }
-
-    customerIds := conn.
-        Table("transactions").
-        Select("distinct(customer_id)").
-        Where("transaction_id in (?)", ids)
-
-    var customers []models.Customer
-    result := conn.Where("id in (?)", customerIds).Find(&customers)
-    if result.Error != nil {
         log.Println("failed to retrieve customers")
         return nil
     }

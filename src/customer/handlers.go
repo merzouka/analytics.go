@@ -42,7 +42,7 @@ func customerTransactions(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"result": getSource().GetTransactionIds(uint(id)),
+		"result": getSource().GetTransaction(uint(id)),
 	})
 }
 
