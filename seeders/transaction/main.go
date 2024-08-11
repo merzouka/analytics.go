@@ -10,7 +10,8 @@ import (
 const (
     // TRANSACTION_ROWS_DEFAULT = 1_000_000
     TRANSACTION_ROWS_DEFAULT = 1_0
-    PRODUCT_ROWS_DEFAULT = 1_000
+    // PRODUCT_ROWS_DEFAULT = 1_000
+    PRODUCT_ROWS_DEFAULT = 1_0
 )
 
 func define(ptr *os.File) {
@@ -64,7 +65,7 @@ INSERT INTO transaction_products (transaction_id, product_id) VALUES `)
 
 func prodDefine(ptr *os.File) {
     def := `CREATE TABLE IF NOT EXISTS products ( id SERIAL PRIMARY KEY, name VARCHAR(255), price BIGINT);
-TRUNCATE TABLE products RESTART IDENTITY CASCADE;\n`
+TRUNCATE TABLE products RESTART IDENTITY CASCADE;`
     _, err := ptr.WriteString(def)
     if err != nil {
         log.Fatal(err)
