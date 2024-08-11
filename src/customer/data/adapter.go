@@ -7,9 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
-	"strings"
 
 	"github.com/merzouka/analytics.go/customer/data/cache"
 	"github.com/merzouka/analytics.go/customer/data/db"
