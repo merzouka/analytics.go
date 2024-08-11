@@ -7,8 +7,11 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/merzouka/analytics.go/transaction/data/models"
+	"gorm.io/gorm"
 )
 
 type Product struct {
@@ -58,4 +61,31 @@ func GetProducts(url string, ids []uint) []Product {
     }
 
     return products
+}
+
+func Paginate(pageSizeStr, pageStr string) func(*gorm.DB) *gorm.DB {
+    return func(d *gorm.DB) *gorm.DB {
+        var pageSize int
+        var page int
+        if pageSizeStr == "" {
+            pageSizeStr = "10"
+        }
+        if pageStr == "" {
+            pageStr = "1"
+        }
+
+        pageSize, err := strconv.Atoi(pageSizeStr)
+        if err != nil {
+            log.Println(err)
+            pageSize = 10
+        }
+
+        page, err = strconv.Atoi(pageStr)
+        if err != nil {
+            log.Println(err)
+            page = 1
+        }
+
+        return d.Limit(pageSize).Offset((page - 1) * pageSize)
+    }
 }

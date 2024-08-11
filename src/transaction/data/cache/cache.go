@@ -193,3 +193,4 @@ func (c Cache) GetTransaction(id uint) *models.TransactionProductIDs {
     
     return &transaction
 }
+

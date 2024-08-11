@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -18,7 +19,6 @@ type Retriever interface {
     Close()
     GetTransaction(id uint) *models.TransactionProductIDs
     GetTransactions(ids []uint) []models.Transaction
-    GetSortedCustomerIds(pageSize, page int) []uint
 }
 
 var retriever Retriever
@@ -108,3 +108,23 @@ func GetRetriver() *Retriever {
     return &retriever
 }
 
+func GetSortedCustomerIds(pageSize, page string) []uint {
+    var ids []uint
+    db := db.Get()
+    if db == nil {
+        log.Println("failed to connect to database")
+        return nil
+    }
+    conn := db.Conn()
+    if conn == nil {
+        log.Println("failed to connect to database")
+        return nil
+    }
+    conn.Model(&models.Transaction{}).
+        Scopes(helpers.Paginate(pageSize, page)).
+        Group("customer_id").
+        Order("sum(total) DESC").
+        Pluck("customer_id", &ids)
+
+    return ids
+}

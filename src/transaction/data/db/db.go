@@ -95,3 +95,4 @@ func (db DB) GetTransaction(id uint) *models.TransactionProductIDs {
         ProductIds: ids,
     }
 }
+

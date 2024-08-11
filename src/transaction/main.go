@@ -11,9 +11,9 @@ func main() {
 
     router.GET("/transactions/:id", getTransaction)
     router.GET("/transactions", getTransactions)
-    router.GET("/customers/:id/transactions", getCustomerTransactions)
-    router.GET("/customers/:id/transactions/total", getTransactionsTotal)
+    router.GET("/transactions/customers/:id", getCustomerTransactions)
+    router.GET("/transactions/customers/:id/total", getTransactionsTotal)
+    router.GET("/transactions/customers/sorted", getSortedCustomerIds)
 
     router.Run(":8080")
 }
-
