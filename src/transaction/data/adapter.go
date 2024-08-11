@@ -107,7 +107,7 @@ func GetRetriver() *Retriever {
     return &retriever
 }
 
-func GetSortedCustomerIds(pageSize, page string) []uint {
+func GetSortedCustomerIds() []uint {
     var ids []uint
     db := db.Get()
     if db == nil {
@@ -120,7 +120,6 @@ func GetSortedCustomerIds(pageSize, page string) []uint {
         return nil
     }
     conn.Model(&models.Transaction{}).
-        Scopes(helpers.Paginate(pageSize, page)).
         Group("customer_id").
         Order("sum(total) DESC").
         Pluck("customer_id", &ids)

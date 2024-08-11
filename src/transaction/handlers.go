@@ -93,6 +93,6 @@ func getCustomerTransactions(ctx *gin.Context) {
 
 func getSortedCustomerIds(ctx *gin.Context) {
     ctx.JSON(http.StatusOK, map[string][]uint{
-        "result": data.GetSortedCustomerIds(ctx.Query("pageSize"), ctx.Query("page")),
+        "result": data.GetSortedCustomerIds(),
     })
 }
