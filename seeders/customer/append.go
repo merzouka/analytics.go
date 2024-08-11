@@ -64,7 +64,7 @@ func (f File) Define() {
         log.Fatal(WRITER_ERROR)
     }
 
-    _, err := ptr.Write([]byte("CREATE TABLE IF NOT EXISTS customers (id serial primary key, name varchar(255), age int, country varchar(255), language varchar(50));\nCREATE TABLE IF NOT EXISTS transactions (customer_id bigint references customers(id), transaction_id bigint);"))
+    _, err := ptr.Write([]byte("CREATE TABLE IF NOT EXISTS customers (id serial primary key, name varchar(255), age int, country varchar(255), language varchar(50))"))
     if err != nil {
         log.Println(fmt.Sprintf("failed to customers write table definition, error: %s", err))
         return
@@ -130,7 +130,7 @@ func getFile(dest string) *File {
         log.Fatal(err)
     }
 
-    def, err := os.OpenFile(fmt.Sprintf("%s/01-create-tables.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
+    def, err := os.Create(fmt.Sprintf("%s/01-create-tables.sql", dest))
     if err != nil {
         log.Fatal(err)
     }
