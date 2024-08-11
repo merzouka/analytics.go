@@ -10,21 +10,12 @@ import (
 )
 
 var id uint = 0
-
 func generateCustomer() Customer {
     id++
     return Customer{
         ID: id,
         Name: fmt.Sprintf("Customer %d", uint(id)),
         Age: 3 + rand.Intn(98),
-    }
-}
-
-func generateTransaction(finalCustomer uint) Transaction {
-    id++
-    return Transaction{
-        TransactionID: id,
-        CustomerID: 1 + uint(rand.Int63n(int64(finalCustomer))),
     }
 }
 
@@ -78,20 +69,6 @@ func seed(appender Appender) {
     if rows > 0 {
         appender.Finalize()
         log.Println("seeding customers succeeded")
-    }
-
-    rows = getRows("transactions")
-    finalId := id
-    id = 0
-    part = -1
-    for i := uint64(0); i < rows; i++ {
-        model := generateTransaction(finalId)
-        appender.AddTransaction(&model)
-        printProgress(i, rows, "seeding transactions...")
-    }
-    if rows > 0 {
-        appender.Finalize()
-        log.Println("seeding transactions succeeded")
     }
 }
 

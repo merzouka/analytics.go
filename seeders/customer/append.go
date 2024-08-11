@@ -13,7 +13,6 @@ import (
 type Appender interface {
     Define()
     AddCustomer(*Customer)
-    AddTransaction(*Transaction)
     Finalize()
     Close()
 }
@@ -47,14 +46,6 @@ func (db DB) AddCustomer(customer *Customer) {
         log.Fatal(WRITER_ERROR)
     }
     conn.Save(&customer)
-}
-
-func (db DB) AddTransaction(transaction *Transaction) {
-    conn := db.conn
-    if conn == nil {
-        log.Fatal(WRITER_ERROR)
-    }
-    conn.Save(&transaction)
 }
 
 func (DB) Finalize() {}
@@ -92,22 +83,6 @@ func (f *File) AddCustomer(customer *Customer) {
         row = ",\n" + row
     } else {
         row = "TRUNCATE TABLE customers RESTART IDENTITY CASCADE;\nINSERT INTO customers (id, name, age) VALUES " + row
-        f.written = true
-    }
-    ptr.Write([]byte(row))
-}
-
-func (f *File) AddTransaction(transaction *Transaction) {
-    ptr := f.data
-    if ptr == nil {
-        log.Fatal(WRITER_ERROR)
-    }
-
-    row := fmt.Sprintf("(%d, %d)", uint(transaction.CustomerID), uint(transaction.TransactionID))
-    if f.written {
-        row = ",\n" + row
-    } else {
-        row = "TRUNCATE TABLE transactions RESTART IDENTITY;\nINSERT INTO transactions (customer_id, transaction_id) VALUES " + row
         f.written = true
     }
     ptr.Write([]byte(row))
