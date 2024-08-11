@@ -1,7 +1,10 @@
 package db
 
 import (
+	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
 	"github.com/merzouka/analytics.go/customer/data/models"
 	"gorm.io/gorm"
@@ -25,8 +28,29 @@ func (db DB) Close() {
     sqlDB.Close()
 }
 
-func (db DB) GetCustomers(ids []uint, pageSize, page string) []models.Customer {
-    return nil
+func StringifyArray(arr []uint) []string {
+    result := []string{}
+    for _, elt := range arr {
+        result = append(result, strconv.FormatUint(uint64(elt), 10))
+    }
+
+    return result
+}
+
+func (db DB) GetCustomersInOrder(ids []uint) []models.Customer {
+    conn := db.conn
+    if conn == nil {
+        log.Println("failed to connect to database")
+        return nil
+    }
+
+    var customers []models.Customer
+    conn.
+        Where("id in (?)", ids).
+        Order(fmt.Sprintf("array_position(array[%s], id) DESC", strings.Join(StringifyArray(ids), ", "))).
+        Find(&customers)
+
+    return customers
 }
 
 var db *DB

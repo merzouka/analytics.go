@@ -13,11 +13,12 @@ import (
 
 	"github.com/merzouka/analytics.go/customer/data/cache"
 	"github.com/merzouka/analytics.go/customer/data/db"
+	"github.com/merzouka/analytics.go/customer/data/helpers"
 	"github.com/merzouka/analytics.go/customer/data/models"
 )
 
 type DataSource interface{
-    GetCustomers(ids []uint, pageSize, page string) []models.Customer
+    GetCustomersInOrder(ids []uint) []models.Customer
     Close()
 }
 
@@ -37,28 +38,8 @@ func GetSource() *DataSource {
     return &source
 }
 
-func addQuery(original string, values map[string]string) string {
-    parts := []string{}
-    result := new(strings.Builder)
-    result.WriteString(original)
-    for key, value := range values {
-        if value == "" {
-            continue
-        }
-        parts = append(parts, fmt.Sprintf("%s=%s", key, url.QueryEscape(value)))
-    }
-    if len(parts) > 0 {
-        result.WriteString("?")
-        result.WriteString(strings.Join(parts, "&"))
-    }
-    return result.String()
-}
-
 func GetSortedCustomers(pageSize, page string) []models.Customer {
-    resp, err := http.Get(addQuery(fmt.Sprintf("%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")), map[string]string{
-        "pageSize": pageSize,
-        "page": page,
-    }))
+    resp, err := http.Get(fmt.Sprintf("%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")))
     if err != nil || resp.Body == nil {
         log.Println("get request failed")
         return nil
@@ -77,5 +58,6 @@ func GetSortedCustomers(pageSize, page string) []models.Customer {
     }
 
     ids := result["result"]
-    return source.GetCustomers(ids, pageSize, page)
+    ids = helpers.SubsetIds(helpers.CompleteIds(ids), pageSize, page)
+    return source.GetCustomersInOrder(ids)
 }

@@ -12,4 +12,8 @@ __MODE__: (CACHE/DB) Data retrieval mode
 - `customers/sorted`: the sorted list of customer by the number of transactions
 - `customers/[id]/transactions/total`: the total number of transactions for the customer
 - `customers/[id]/transactions`: transactions made by the customer
-- `customers/[id]`: the customer with id
+
+# How it works
+- The endpoints for retrieving transactions and transaction total are proxies for the transactions service. 
+- The sorted endpoint first fetches ids of customers sorted by the total amount of transactions the customer has made, 
+customers that have made no transaction are sorted by their id

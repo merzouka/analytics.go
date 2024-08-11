@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/merzouka/analytics.go/customer/data/db"
 	"github.com/merzouka/analytics.go/customer/data/models"
 	"github.com/redis/go-redis/v9"
 )
@@ -35,21 +36,33 @@ func (c Cache) Close() {
     sqlDB.Close()
 }
 
-
-func (c Cache) GetCustomers(ids []uint, pageSize, page string) []models.Customer {
+func (c Cache) GetCustomersInOrder(ids []uint) []models.Customer {
     cache := c.conn
     if cache == nil {
         log.Println(CACHE_CONNECTION_ERROR)
         return nil
     }
-    db := models.GetConn()
+    db := db.GetInstance()
     if db == nil {
         return nil
     }
 
     customers, misses := getCustomersFromCache(cache, ids)
-    customers = append(customers, getCustomersFromDB(db, cache, misses)...)
-    return customers
+    dbCustomers := db.GetCustomersInOrder(misses)
+    missesIdx := 0
+    customersIdx := 0
+    result := []models.Customer{}
+    for _, id := range ids {
+        if customers[customersIdx].ID == id {
+            result = append(result, customers[customersIdx])
+            customersIdx++
+            continue
+        }
+        result = append(result, dbCustomers[missesIdx])
+        missesIdx++
+    }
+
+    return result
 }
 
 var cache *Cache
