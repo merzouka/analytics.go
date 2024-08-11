@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/merzouka/analytics.go/transaction/data/models"
 	"gorm.io/gorm"
