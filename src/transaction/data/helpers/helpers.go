@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/merzouka/analytics.go/transaction/data/models"
 	"gorm.io/gorm"
@@ -35,13 +36,23 @@ func ExtractProductIds(productsArrays ...[]models.TransactionProduct) []uint {
     return ids
 }
 
+func StringifyArray(ids []uint) []string {
+    result := []string{}
+    for _, id := range ids {
+        result = append(result, strconv.FormatUint(uint64(id), 10))
+    }
+
+    return result
+}
 
 // GetProducts queries the 'products' service and returns products matching ids.
 // Returns nil on failure
-func GetProducts(url string, ids []uint) []Product {
+func GetProducts(target string, ids []uint) []Product {
+    url := fmt.Sprintf("%s?ids=%s", target, strings.Join(StringifyArray(ids), ","))
+    log.Println(url)
     resp, err := http.Get(url)
     if err != nil || resp.Body == nil{
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
+        log.Println(err)
         return nil
     }
     defer resp.Body.Close()
@@ -49,13 +60,13 @@ func GetProducts(url string, ids []uint) []Product {
     buffer := new(bytes.Buffer)
     _, err = io.Copy(buffer, resp.Body)
     if err != nil {
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
+        log.Println(err)
         return nil
     }
 
     var products []Product
     if json.Unmarshal(buffer.Bytes(), &products) != nil {
-        log.Println(fmt.Sprintf("request failed for products: %v", ids))
+        log.Println(err)
         return nil
     }
 

@@ -50,15 +50,14 @@ func main() {
         r := data.GetRetriever()
         retriever = r
         ids := getIds(ctx.Query("ids"))
+        log.Println(ids)
         if ids == nil || r == nil {
             ctx.JSON(http.StatusInternalServerError, map[string]string{
                 "error": "failed to retrieve products",
             })
             return 
         }
-        ctx.JSON(http.StatusOK, map[string]interface{}{
-            "result": r.GetProducts(ids),
-        })
+        ctx.JSON(http.StatusOK, r.GetProducts(ids))
     })
 
     router.GET("/product/:id", func(ctx *gin.Context) {

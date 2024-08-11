@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,8 +30,9 @@ func getIds(idsStr string) ([]uint, error) {
 }
 
 func getTransactionsTotal(ctx *gin.Context) {
-    ids, err := getIds(ctx.Query("id"))
+    ids, err := getIds(ctx.Param("id"))
     if err != nil {
+        log.Println(err)
         ctx.JSON(http.StatusBadRequest, map[string]string{
             "error": "bad ids provided",
         })
@@ -47,6 +49,7 @@ func getTransactionsTotal(ctx *gin.Context) {
 func getTransaction(ctx *gin.Context) {
     ids, err := getIds(ctx.Param("id"))
     if err != nil || len(ids) == 0 {
+        log.Println(err)
         ctx.JSON(http.StatusBadRequest, map[string]string{
             "error": "bad id provided",
         })
@@ -63,6 +66,7 @@ func getTransaction(ctx *gin.Context) {
 func getTransactions(ctx *gin.Context) {
     ids, err := getIds(ctx.Query("ids"))
     if err != nil {
+        log.Println(err)
         ctx.JSON(http.StatusBadRequest, map[string]string{
             "error": "bad ids provided",
         })
@@ -76,8 +80,10 @@ func getTransactions(ctx *gin.Context) {
 }
 
 func getCustomerTransactions(ctx *gin.Context) {
-    ids, err := getIds(ctx.Query("id"))
+    log.Println(ctx.Param("id"))
+    ids, err := getIds(ctx.Param("id"))
     if err != nil {
+        log.Println(err)
         ctx.JSON(http.StatusBadRequest, map[string]string{
             "error": "invalid id provided",
         })

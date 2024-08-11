@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -13,6 +14,11 @@ import (
 const (
     PRODUCTS_SERVICE_ENV = "PRODUCT_SERVICE"
 )
+
+func getUrl(endpoint string) string {
+    url := os.Getenv(PRODUCTS_SERVICE_ENV)
+    return fmt.Sprintf("%s%s", url, endpoint)
+}
 
 type Retriever interface {
     Close()
@@ -34,8 +40,7 @@ func GetTransaction(retriever Retriever, id uint) map[string]interface{} {
         return nil
     }
 
-    url := os.Getenv(PRODUCTS_SERVICE_ENV)
-    result["products"] = helpers.GetProducts(url, transaction.ProductIds)
+    result["products"] = helpers.GetProducts(getUrl("/products"), transaction.ProductIds)
     return result
 }
 
@@ -73,8 +78,7 @@ func GetTotal(retriever Retriever, id uint) uint {
         productArray = append(productArray, transaction.Products)
     }
 
-    url := os.Getenv(PRODUCTS_SERVICE_ENV)
-    products := helpers.GetProducts(url, helpers.ExtractProductIds(productArray...))
+    products := helpers.GetProducts(getUrl("/products"), helpers.ExtractProductIds(productArray...))
 
     result := uint(0)
     for _, product := range products {
