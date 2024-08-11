@@ -57,6 +57,25 @@ func main() {
         })
     })
 
+    router.GET("/product/:id", func(ctx *gin.Context) {
+        r := data.GetRetriever()
+        retriever = r
+        ids := getIds(ctx.Param("id"))
+        if ids == nil || r == nil {
+            ctx.JSON(http.StatusInternalServerError, map[string]string{
+                "error": "failed to retrieve products",
+            })
+            return 
+        }
+
+        products := r.GetProducts(ids)
+        if len(products) == 0 {
+            ctx.JSON(http.StatusOK, nil)
+            return
+        }
+        ctx.JSON(http.StatusOK, products[0])
+    })
+
     router.Run(":8080")
     if retriever != nil {
         retriever.Close()

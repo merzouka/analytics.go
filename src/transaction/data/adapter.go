@@ -18,6 +18,7 @@ type Retriever interface {
     Close()
     GetTransaction(id uint) *models.TransactionProductIDs
     GetTransactions(ids []uint) []models.Transaction
+    GetSortedCustomerIds(pageSize, page int) []uint
 }
 
 var retriever Retriever

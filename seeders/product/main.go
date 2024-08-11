@@ -75,6 +75,7 @@ func seed(dest string) {
         result.WriteString(getProduct().String())
     }
     result.WriteString(";")
+
     _, err = ptr.WriteString(result.String())
     if err != nil {
         log.Fatal("failed to write data")

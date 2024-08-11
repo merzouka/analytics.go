@@ -83,5 +83,10 @@ func getCustomerTransactions(ctx *gin.Context) {
         })
         return
     }
+
     clientId := ids[0]
+    retriever := data.GetRetriver()
+    ctx.JSON(http.StatusOK, map[string]interface{}{
+        "result": data.GetCustomerTransactions(*retriever, clientId),
+    })
 }
