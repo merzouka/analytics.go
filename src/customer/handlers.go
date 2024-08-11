@@ -37,7 +37,7 @@ func getSource() data.DataSource {
 }
 
 func request(endpoint string) (string, error) {
-    resp, err := http.Get(fmt.Sprintf("%s/%s", endpoint))
+    resp, err := http.Get(fmt.Sprintf("%s/%s", os.Getenv("TRANSACTION_SERVICE"), endpoint))
     if err != nil || resp.Body == nil {
         return "", errors.New("failed to connect to transactions service")
     }
@@ -60,7 +60,7 @@ func customerTransactions(ctx *gin.Context) {
 		return
 	}
 
-    endpoint := fmt.Sprintf("transactions/customers/:id", uint(id))
+    endpoint := fmt.Sprintf("transactions/customers/%d", uint(id))
     resp, err := request(endpoint)
     if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{
@@ -94,5 +94,5 @@ func customerTotal(ctx *gin.Context) {
 }
 
 func sortedCustomers(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, getSource().GetSortedCustomers(ctx.Query("pageSize"), ctx.Query("page")))
+	ctx.JSON(http.StatusOK, data.GetSortedCustomers(ctx.Query("pageSize"), ctx.Query("page")))
 }

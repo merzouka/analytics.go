@@ -2,11 +2,9 @@ package cache
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
-	"github.com/merzouka/analytics.go/customer/data/helpers"
 	"github.com/merzouka/analytics.go/customer/data/models"
 	"github.com/redis/go-redis/v9"
 )
@@ -37,7 +35,8 @@ func (c Cache) Close() {
     sqlDB.Close()
 }
 
-func (c Cache) GetSortedCustomers(pageSize, page string) []models.Customer {
+
+func (c Cache) GetCustomers(ids []uint, pageSize, page string) []models.Customer {
     cache := c.conn
     if cache == nil {
         log.Println(CACHE_CONNECTION_ERROR)
@@ -45,47 +44,10 @@ func (c Cache) GetSortedCustomers(pageSize, page string) []models.Customer {
     }
     db := models.GetConn()
     if db == nil {
-        return nil
-    }
-
-    var ids []uint
-    result := db.
-        Model(&models.Transaction{}).
-        Select("customer_id").
-        Group("customer_id").
-        Order("count(*) DESC").
-        Scopes(helpers.Paginate(pageSize, page)).
-        Pluck("customer_id", &ids)
-
-    if result.Error != nil {
-        log.Println(queryFailure("sorted customers by transactions", result.Error))
         return nil
     }
 
     customers, misses := getCustomersFromCache(cache, ids)
-    customers = append(customers, getCustomersFromDB(db, cache, misses)...)
-    return customers
-}
-
-func (c Cache) GetCustomersForTransactions(transactionIds []uint) []models.Customer {
-    cache := c.conn
-    if cache == nil {
-        log.Println(CACHE_CONNECTION_ERROR)
-        return nil
-    }
-    db := models.GetConn()
-    if db == nil {
-        return nil
-    }
-
-    var customerIds []uint
-    result := db.Model(&models.Transaction{}).Where("transaction_id in (?)").Pluck("distinct(customer_id)", &customerIds)
-    if result.Error != nil {
-        log.Println(fmt.Sprintf("customer id retrieval failed for transactions: %v", transactionIds))
-        return nil
-    }
-
-    customers, misses := getCustomersFromCache(cache, customerIds)
     customers = append(customers, getCustomersFromDB(db, cache, misses)...)
     return customers
 }

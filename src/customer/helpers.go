@@ -25,3 +25,7 @@ func setLogger() *os.File {
 	log.SetOutput(f)
 	return f
 }
+
+func GetUrl(endpoint string) string {
+    return fmt.Sprintf("%s/%s", os.Getenv("TRANSACTION_SERVICE"), endpoint)
+}

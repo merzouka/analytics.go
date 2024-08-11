@@ -3,7 +3,6 @@ package db
 import (
 	"log"
 
-	"github.com/merzouka/analytics.go/customer/data/helpers"
 	"github.com/merzouka/analytics.go/customer/data/models"
 	"gorm.io/gorm"
 )
@@ -26,27 +25,8 @@ func (db DB) Close() {
     sqlDB.Close()
 }
 
-func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
-    conn := db.conn
-    if conn == nil {
-        log.Println(DATABASE_CONNECTION_ERROR)
-        return nil
-    }
-
-    var customers []models.Customer
-    ids := conn.
-        Table("transactions").
-        Select("customer_id").
-        Group("customer_id").
-        Order("count(customer_id) DESC").
-        Scopes(helpers.Paginate(pageSize, page))
-
-    if conn.Where("id in (?)", ids).Preload("Transactions").Find(&customers).Error != nil {
-        log.Println("failed to retrieve customers")
-        return nil
-    }
-
-    return customers
+func (db DB) GetCustomers(ids []uint, pageSize, page string) []models.Customer {
+    return nil
 }
 
 var db *DB
