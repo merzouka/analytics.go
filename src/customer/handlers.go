@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -35,6 +36,21 @@ func getSource() data.DataSource {
 	return source
 }
 
+func request(endpoint string) (string, error) {
+    resp, err := http.Get(fmt.Sprintf("%s/%s", endpoint))
+    if err != nil || resp.Body == nil {
+        return "", errors.New("failed to connect to transactions service")
+    }
+    defer resp.Body.Close()
+
+    buffer := new(bytes.Buffer)
+    _, err = io.Copy(buffer, resp.Body)
+    if err != nil {
+        return "", errors.New("failed to connect to transactions service")
+    }
+    return buffer.String(), nil
+}
+
 func customerTransactions(ctx *gin.Context) {
 	id, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -44,9 +60,16 @@ func customerTransactions(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"result": getSource().GetTransaction(uint(id)),
-	})
+    endpoint := fmt.Sprintf("transactions/customers/:id", uint(id))
+    resp, err := request(endpoint)
+    if err != nil {
+		ctx.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "failed to connect to transactions service",
+		})
+        return
+    }
+
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func customerTotal(ctx *gin.Context) {
@@ -58,25 +81,16 @@ func customerTotal(ctx *gin.Context) {
 		return
 	}
 
-    resp, err := http.Get(fmt.Sprintf("%s/transactions/customers/%d/total", os.Getenv("TRANSACTION_SERVICE"), uint(id)))
-    if err != nil || resp.Body == nil {
-		ctx.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "failed to connect to transactions service",
-		})
-        return 
-    }
-    defer resp.Body.Close()
-
-    buffer := new(bytes.Buffer)
-    _, err = io.Copy(buffer, resp.Body)
+    endpoint := fmt.Sprintf("transactions/customers/%d/total", uint(id))
+    resp, err := request(endpoint)
     if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "failed to connect to transactions service",
 		})
-        return 
+        return
     }
 
-	ctx.JSON(http.StatusOK, buffer.String())
+	ctx.JSON(http.StatusOK, resp)
 }
 
 func sortedCustomers(ctx *gin.Context) {
