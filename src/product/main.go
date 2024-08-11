@@ -10,6 +10,7 @@ import (
 	"github.com/merzouka/analytics.go/api/product/data"
 	"github.com/merzouka/analytics.go/api/product/data/db"
 	"github.com/merzouka/analytics.go/api/product/data/models"
+    "github.com/joho/godotenv"
 )
 
 var down bool = false
@@ -36,6 +37,9 @@ func getIds(query string) []uint {
 
 func main() {
     router := gin.Default()
+    if err := godotenv.Load(); err != nil {
+        log.Fatal(err)
+    }
 
     var retriever data.Retriever
     router.GET("/ping", func(ctx *gin.Context) {
@@ -76,7 +80,7 @@ func main() {
         ctx.JSON(http.StatusOK, products[0])
     })
 
-    router.Run(":8080")
+    router.Run(":8081")
     if retriever != nil {
         retriever.Close()
     }
