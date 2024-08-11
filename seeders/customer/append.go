@@ -78,6 +78,7 @@ func (f File) Define() {
         log.Println(fmt.Sprintf("failed to customers write table definition, error: %s", err))
         return
     }
+    log.Println("created table definition successfully")
 }
 
 func (f *File) AddCustomer(customer *Customer) {
@@ -153,13 +154,11 @@ func getFile(dest string) *File {
     if err != nil {
         log.Fatal(err)
     }
-    log.Println("created data file pointer")
 
     def, err := os.OpenFile(fmt.Sprintf("%s/01-create-tables.sql", dest), os.O_APPEND | os.O_CREATE | os.O_RDWR, 0644)
     if err != nil {
         log.Fatal(err)
     }
-    log.Println("created def file pointer")
 
     file = &File{
         def: def,
