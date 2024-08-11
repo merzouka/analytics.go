@@ -11,7 +11,7 @@ import (
 )
 
 const (
-    PRODUCTS_SERVICE_ENV = "PRODUCTS_URL"
+    PRODUCTS_SERVICE_ENV = "PRODUCT_SERVICE"
 )
 
 type Retriever interface {
@@ -34,7 +34,7 @@ func GetTransaction(retriever Retriever, id uint) map[string]interface{} {
         return nil
     }
 
-    url := os.Getenv("PRODUCTS_URL")
+    url := os.Getenv(PRODUCTS_SERVICE_ENV)
     result["products"] = helpers.GetProducts(url, transaction.ProductIds)
     return result
 }
