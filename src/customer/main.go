@@ -5,10 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	router := gin.Default()
+    if err := godotenv.Load(); err != nil {
+        log.Fatal(err)
+    }
 	defer getSource().Close()
 
 	router.GET("/ping", func(ctx *gin.Context) {

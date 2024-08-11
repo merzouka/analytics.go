@@ -2,7 +2,6 @@ package cache
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -36,55 +35,6 @@ func (c Cache) Close() {
     }
 
     sqlDB.Close()
-}
-
-func (c Cache) GetTransactions(id uint) []uint {
-    conn := c.conn
-    if conn == nil {
-        log.Println(CACHE_CONNECTION_ERROR)
-        return nil
-    }
-    db := models.GetConn()
-
-    ctx := context.Background()
-    result := conn.Get(ctx, customerCacheKey(id))
-
-    if result.Err() != nil {
-        var customer models.Customer
-        result := db.Where("id = ?", id).Preload("Transactions").First(&customer)
-        if result.Error != nil {
-            log.Println(queryFailure(fmt.Sprintf("id lookup %d", uint(id)), result.Error))
-            return nil
-        }
-
-        ids := []uint{}
-        for _, transaction := range customer.Transactions {
-            ids = append(ids, transaction.TransactionID)
-        }
-
-        customer.Transactions = nil
-        str, err := json.Marshal(&CustomerTransactions{
-            Customer: customer,
-            TransactionIds: ids,
-        })
-
-        if err != nil {
-            log.Println(fmt.Sprintf("failed to cache response to transaction ids %s", customerCacheKey(id)))
-        } else {
-            conn.Set(ctx, fmt.Sprintf("customer:%d", uint(id)), string(str), 0)
-        }
-
-        return ids
-    }
-
-    var customer CustomerTransactions
-    err := json.Unmarshal([]byte(result.Val()), &customer)
-    if err != nil {
-        log.Println(fmt.Sprintf("request for %s transaction ids failed", customerCacheKey(id)))
-        return nil
-    }
-
-    return customer.TransactionIds
 }
 
 func (c Cache) GetSortedCustomers(pageSize, page string) []models.Customer {
@@ -136,28 +86,6 @@ func (c Cache) GetCustomersForTransactions(transactionIds []uint) []models.Custo
     }
 
     customers, misses := getCustomersFromCache(cache, customerIds)
-    customers = append(customers, getCustomersFromDB(db, cache, misses)...)
-    return customers
-}
-
-func (c Cache) GetCustomersByName(name string) []models.Customer {
-    cache := c.conn
-    if cache == nil {
-        log.Println(CACHE_CONNECTION_ERROR)
-        return nil
-    }
-    db := models.GetConn()
-    if db == nil {
-        return nil
-    }
-
-    var ids []uint
-    result := db.Model(&models.Customer{}).Where("name like %?%", name).Pluck("id", &ids)
-    if result.Error != nil {
-        log.Println(fmt.Sprintf(""))
-    }
-
-    customers, misses := getCustomersFromCache(cache, ids)
     customers = append(customers, getCustomersFromDB(db, cache, misses)...)
     return customers
 }

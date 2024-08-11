@@ -7,9 +7,7 @@ import (
 )
 
 type DataSource interface{
-    GetTransactions(id uint) []uint;
     GetSortedCustomers(pageSize string, page string) []models.Customer;
-    GetCustomersByName(name string) []models.Customer;
     Close()
 }
 

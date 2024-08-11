@@ -26,23 +26,6 @@ func (db DB) Close() {
     sqlDB.Close()
 }
 
-func (db DB) GetTransactions(id uint) []uint {
-    conn := db.conn
-    if conn == nil {
-        log.Println(DATABASE_CONNECTION_ERROR)
-        return nil
-    }
-
-    var ids []uint
-    result := conn.Model(&models.Transaction{}).Where("customer_id = ?", id).Pluck("transaction_id", &ids)
-    if result.Error != nil {
-        log.Println("failed to retrieve transactions")
-        return nil
-    }
-
-    return ids
-}
-
 func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
     conn := db.conn
     if conn == nil {
@@ -60,21 +43,6 @@ func (db DB) GetSortedCustomers(pageSize, page string) []models.Customer {
 
     if conn.Where("id in (?)", ids).Preload("Transactions").Find(&customers).Error != nil {
         log.Println("failed to retrieve customers")
-        return nil
-    }
-
-    return customers
-}
-
-func (db DB) GetCustomersByName(name string) []models.Customer {
-    conn := db.conn
-    if conn == nil {
-        log.Println(DATABASE_CONNECTION_ERROR)
-        return nil
-    }
-
-    var customers []models.Customer
-    if conn.Where("name like %?%", name).Find(&customers).Error != nil {
         return nil
     }
 
