@@ -1,10 +1,11 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: cache-storage
+  name: cache-storage-product
   labels:
     app: redis
     usage: storage
+    service: product
 spec:
   accessModes:
     - ReadWriteMany
@@ -62,6 +63,11 @@ spec:
             storage: 3Gi
           limits:
             storage: 4Gi
+        selector:
+          matchLabels:
+            app: redis
+            usage: storage
+            service: product
 ---
 apiVersion: v1
 kind: Service

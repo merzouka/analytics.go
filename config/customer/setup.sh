@@ -20,14 +20,14 @@ kubectl create secret generic service-secrets \
     --from-literal=cache-password=$(echo -n $(cat .cache))
 
 kubectl apply -f init.yaml
-pods=($(kubectl get pods -o name))
-pod=${pods[0]}
+jobs=($(kubectl get jobs.batch -o name))
+job=${jobs[0]}
 
 echo "waiting for seeding"
-kubectl wait --for=condition=Ready $pod
+kubectl wait --for=condition=complete $job
 kubectl delete jobs.batch seed
-kubectl delete pvc init-claim
-kubectl patch pv init -p '{"spec":{"claimRef": null}}'
+kubectl delete pvc init-$service-claim
+kubectl patch pv init-$service -p '{"spec":{"claimRef": null}}'
 
 # database set up
 kubectl apply -f db.yaml

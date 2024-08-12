@@ -1,6 +1,6 @@
 #!/bin/bash
 
-service="product"
+service="transaction"
 
 kubectl apply -f namespace.yaml
 kubectl config set-context --current --namespace $service
@@ -10,7 +10,7 @@ get_service_url () {
 }
 
 db_service="database"
-db_name="$service""db"
+db_name="$servicedb"
 db_password=$(echo -n $(cat .db))
 kubectl create secret generic db-secret --from-literal=db-password=$db_password
 
@@ -18,6 +18,18 @@ kubectl create secret generic service-secrets \
     --from-literal=db-url="postgresql://docker:$db_password@$(get_service_url "$db_service"):5432/$db_name" \
     --from-literal=cache-url="$(get_service_url "cache"):6379" \
     --from-literal=cache-password=$(echo -n $(cat .cache))
+
+kubectl apply -f init.yaml
+jobs=($(kubectl get jobs.batch -o name))
+job=${jobs[0]}
+
+echo "waiting for seeding"
+kubectl wait --for=condition=complete $job
+kubectl delete jobs.batch seed
+kubectl delete pvc init-transaction-claim
+kubectl delete pvc init-product-claim
+kubectl patch pv init-transaction -p '{"spec":{"claimRef": null}}'
+kubectl patch pv init-product -p '{"spec":{"claimRef": null}}'
 
 # database set up
 kubectl apply -f db.yaml

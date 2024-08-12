@@ -6,24 +6,24 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: customer
+      app: transaction
       type: api
       mode: cache
   template:
     metadata:
       labels:
-        app: customer
+        app: transaction
         type: api
         mode: cache
     spec:
       containers:
         - name: api
-          image: vmerv/analytics-customer
+          image: vmerv/analytics-transaction
           env:
             - name: MODE
               value: CACHE
-            - name: TRANSACTION_SERVICE
-              value: cache-transaction.transaction.svc.cluster.local:8080
+            - name: PRODUCT_SERVICE
+              value: cache-product.product.svc.cluster.local:8080
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
@@ -46,10 +46,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: cache-customer
+  name: cache-transaction
 spec:
   selector:
-    app: customer
+    app: transaction
     type: api
     mode: cache
   ports:
@@ -65,24 +65,24 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: customer
+      app: transaction
       type: api
       mode: db
   template:
     metadata:
       labels:
-        app: customer
+        app: transaction
         type: api
         mode: db
     spec:
       containers:
         - name: api
-          image: vmerv/analytics-customer
+          image: vmerv/analytics-transaction
           env:
             - name: MODE
               value: DB
-            - name: TRANSACTION_SERVICE
-              value: db-transaction.transaction.svc.cluster.local:8080
+            - name: PRODUCT_SERVICE
+              value: db-product.product.svc.cluster.local:8080
             - name: DB_URL
               valueFrom:
                 secretKeyRef:
@@ -95,10 +95,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: db-customer
+  name: db-transaction
 spec:
   selector:
-    app: customer
+    app: transaction
     type: api
     mode: db
   ports:

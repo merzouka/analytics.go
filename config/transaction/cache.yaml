@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  namespace: product
-  name: cache-storage
+  name: cache-storage-transaction
   labels:
     app: redis
     usage: storage
+    service: transaction
 spec:
   accessModes:
     - ReadWriteMany
@@ -15,13 +15,12 @@ spec:
   capacity:
     storage: 3Gi
   hostPath:
-    path: /data/product/cache
+    path: /data/transaction/cache
     type: DirectoryOrCreate
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: product
   name: cache-set
 spec:
   selector:
@@ -31,7 +30,6 @@ spec:
   replicas: 1
   template:
     metadata:
-      namespace: customer
       labels:
         app: redis
         usage: handler
@@ -65,11 +63,15 @@ spec:
             storage: 3Gi
           limits:
             storage: 4Gi
+        selector:
+          matchLabels:
+            app: redis
+            usage: storage
+            service: transaction
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: product
   name: cache
   labels:
     app: redis
