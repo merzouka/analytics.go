@@ -20,8 +20,7 @@ func generateCustomer() Customer {
 }
 
 const (
-    // ROWS_DEFAULT = 1_000_000
-    ROWS_DEFAULT = 2_0
+    ROWS_DEFAULT = 1_000
 )
 
 var part int = -1 
