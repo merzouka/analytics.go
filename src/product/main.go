@@ -38,7 +38,7 @@ func getIds(query string) []uint {
 func main() {
     router := gin.Default()
     if err := godotenv.Load(); err != nil {
-        log.Fatal(err)
+        log.Println(err)
     }
 
     var retriever data.Retriever
@@ -78,7 +78,7 @@ func main() {
         ctx.JSON(http.StatusOK, products[0])
     })
 
-    router.Run(":8081")
+    router.Run(":8080")
     if retriever != nil {
         retriever.Close()
     }

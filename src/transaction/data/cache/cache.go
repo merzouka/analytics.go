@@ -20,6 +20,10 @@ type Cache struct {
 
 var cache *Cache
 
+func (cache *Cache) IsNil() bool {
+    return cache.conn == nil
+}
+
 func Get() *Cache {
 	if cache != nil {
 		return cache

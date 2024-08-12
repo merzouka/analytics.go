@@ -1,4 +1,5 @@
 # Environment variables
+__TRANSACTION_SERVICE__: url path of transactions service
 __DB_URL__: Postgres database url
 __CACHE_URL__: Redis cache url
 __CACHE_PASSWORD__: Redis cache password

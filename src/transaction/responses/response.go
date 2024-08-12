@@ -9,7 +9,7 @@ import (
 
 type Response struct {
 	Data      interface{} `json:"data"`
-	Errors    []error     `json:"errors"`
+	Errors    []string    `json:"errors"`
 	TimeStamp time.Time   `json:"timestamp"`
 }
 
@@ -22,7 +22,7 @@ type Transaction struct {
 }
 
 func (resp Response) AddError(err error) Response {
-	resp.Errors = append(resp.Errors, err)
+	resp.Errors = append(resp.Errors, err.Error())
 	return resp
 }
 

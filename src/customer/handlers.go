@@ -38,7 +38,7 @@ func getSource() data.DataSource {
 }
 
 func request(endpoint string, v any) error {
-    resp, err := http.Get(fmt.Sprintf("%s/%s", os.Getenv("TRANSACTION_SERVICE"), endpoint))
+    resp, err := http.Get(fmt.Sprintf("http://%s/%s", os.Getenv("TRANSACTION_SERVICE"), endpoint))
     if err != nil || resp.Body == nil {
         return errors.New("failed to connect to transactions service")
     }

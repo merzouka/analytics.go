@@ -39,8 +39,12 @@ func getTransactionsTotal(ctx *gin.Context) {
 	}
 	clientId := ids[0]
 
-	retriever := data.GetRetriver()
-	ctx.JSON(http.StatusOK, responses.New(data.GetTotal(*retriever, clientId)))
+	retriever := data.GetRetriever()
+    if retriever.IsNil() {
+		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
+		return
+    }
+	ctx.JSON(http.StatusOK, responses.New(data.GetTotal(retriever, clientId)))
 }
 
 func getTransaction(ctx *gin.Context) {
@@ -52,8 +56,12 @@ func getTransaction(ctx *gin.Context) {
 	}
 	transactionId := ids[0]
 
-	retriever := data.GetRetriver()
-	ctx.JSON(http.StatusOK, responses.New(data.GetTransaction(*retriever, transactionId)))
+	retriever := data.GetRetriever()
+    if retriever.IsNil() {
+		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
+		return
+    }
+	ctx.JSON(http.StatusOK, responses.New(data.GetTransaction(retriever, transactionId)))
 }
 
 func getTransactions(ctx *gin.Context) {
@@ -64,8 +72,12 @@ func getTransactions(ctx *gin.Context) {
 		return
 	}
 
-	retriever := data.GetRetriver()
-	ctx.JSON(http.StatusOK, responses.New((*retriever).GetTransactions(ids)))
+	retriever := data.GetRetriever()
+    if retriever.IsNil() {
+		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
+		return
+    }
+	ctx.JSON(http.StatusOK, responses.New(retriever.GetTransactions(ids)))
 }
 
 func getCustomerTransactions(ctx *gin.Context) {
@@ -77,8 +89,12 @@ func getCustomerTransactions(ctx *gin.Context) {
 	}
 
 	clientId := ids[0]
-	retriever := data.GetRetriver()
-	ctx.JSON(http.StatusOK, responses.New(data.GetCustomerTransactions(*retriever, clientId)))
+	retriever := data.GetRetriever()
+    if retriever.IsNil() {
+		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
+		return
+    }
+	ctx.JSON(http.StatusOK, responses.New(data.GetCustomerTransactions(retriever, clientId)))
 }
 
 func getSortedCustomerIds(ctx *gin.Context) {

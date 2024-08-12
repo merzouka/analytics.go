@@ -1,7 +1,6 @@
 package data
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -15,11 +14,15 @@ import (
 
 type Retriever interface {
 	Close()
+    IsNil() bool
 	GetTransaction(id uint) *models.TransactionProductIDs
 	GetTransactions(ids []uint) []models.Transaction
 }
 
-var retriever Retriever
+var retriever struct {
+    initialized bool
+    src Retriever
+} = struct{initialized bool; src Retriever}{}
 
 func GetTransaction(retriever Retriever, id uint) map[string]interface{} {
 	if retriever == nil {
@@ -89,9 +92,9 @@ func GetCustomerTransactions(retriever Retriever, id uint) []responses.Transacti
 	return transactions
 }
 
-func GetRetriver() *Retriever {
-	if retriever != nil {
-		return &retriever
+func GetRetriever() Retriever {
+    if retriever.initialized && retriever.src.IsNil() {
+		return retriever.src
 	}
 
 	mode := os.Getenv("MODE")
@@ -99,13 +102,18 @@ func GetRetriver() *Retriever {
 		mode = "CACHE"
 	}
 
+    var src Retriever
 	if mode == "CACHE" {
-		retriever = cache.Get()
+		src = cache.Get()
 	} else {
-		retriever = db.Get()
+		src = db.Get()
 	}
+    if !src.IsNil() {
+        retriever.initialized = true
+        retriever.src = src
+    }
 
-	return &retriever
+	return retriever.src
 }
 
 func GetSortedCustomerIds() []uint {

@@ -18,7 +18,7 @@ const (
 
 func getUrl(endpoint string) string {
 	url := os.Getenv(PRODUCTS_SERVICE_ENV)
-	return fmt.Sprintf("%s%s", url, endpoint)
+    return fmt.Sprintf("http://%s%s", url, endpoint)
 }
 
 func StringifyArray(ids []uint) []string {

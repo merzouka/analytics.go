@@ -10,7 +10,7 @@ get_service_url () {
 }
 
 db_service="database"
-db_name="$servicedb"
+db_name="$service""db"
 db_password=$(echo -n $(cat .db))
 kubectl create secret generic db-secret --from-literal=db-password=$db_password
 
@@ -20,22 +20,3 @@ kubectl create secret generic service-secrets \
     --from-literal=cache-password=$(echo -n $(cat .cache))
 
 kubectl apply -f init.yaml
-jobs=($(kubectl get jobs.batch -o name))
-job=${jobs[0]}
-
-echo "waiting for seeding"
-kubectl wait --for=condition=complete $job
-kubectl delete jobs.batch seed
-kubectl delete pvc init-transaction-claim
-kubectl delete pvc init-product-claim
-kubectl patch pv init-transaction -p '{"spec":{"claimRef": null}}'
-kubectl patch pv init-product -p '{"spec":{"claimRef": null}}'
-
-# database set up
-kubectl apply -f db.yaml
-
-# cache set up
-kubectl apply -f cache.yaml
-
-# service set up
-kubectl apply -f service.yaml

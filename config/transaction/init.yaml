@@ -19,26 +19,6 @@ spec:
     type: DirectoryOrCreate
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: init-transaction-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 800Mi
-    limits:
-      storage: 1Gi
-  storageClassName: init
-  selector:
-    matchLabels:
-      app: postgres
-      usage: init
-      service: transaction
----
-apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: init-product
@@ -57,60 +37,3 @@ spec:
   hostPath:
     path: /init/product
     type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: init-product-claim
-spec:
-  accessModes:
-    - ReadWriteMany
-  volumeMode: Filesystem
-  resources:
-    requests:
-      storage: 800Mi
-    limits:
-      storage: 1Gi
-  storageClassName: init
-  selector:
-    matchLabels:
-      app: postgres
-      usage: init
-      service: product
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: seed
-spec:
-  template:
-    metadata:
-      labels:
-        type: seeder
-    spec:
-      volumes:
-        - name: init-transaction
-          persistentVolumeClaim:
-            claimName: init-transaction-claim 
-        - name: init-product
-          persistentVolumeClaim:
-            claimName: init-product-claim 
-      containers:
-        - name: seeder
-          image: vmerv/analytics-seeder-transaction
-          env:
-            - name: OUTPUT_MEDIUM
-              value: FILE
-            - name: OUTPUT_DIR
-              value: /init-transaction
-            - name: PRODUCT_OUTPUT_DIR
-              value: /init-product
-            - name: ROWS_NUMBER
-              value: "customers:1000,products,transactions:1000000"
-          volumeMounts:
-            - name: init-transaction
-              mountPath: /init-transaction
-            - name: init-product
-              mountPath: /init-product
-      restartPolicy: Never
-  backoffLimit: 4

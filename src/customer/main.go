@@ -11,7 +11,7 @@ import (
 func main() {
 	router := gin.Default()
     if err := godotenv.Load(); err != nil {
-        log.Fatal(err)
+        log.Println(err)
     }
 	defer getSource().Close()
 

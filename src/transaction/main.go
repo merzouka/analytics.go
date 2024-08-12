@@ -10,9 +10,9 @@ import (
 
 func main() {
 	router := gin.Default()
-	(*data.GetRetriver()).Close()
+	defer data.GetRetriever().Close()
 	if err := godotenv.Load(); err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	router.GET("/transactions/:id", getTransaction)
@@ -21,5 +21,5 @@ func main() {
 	router.GET("/transactions/customers/:id/total", getTransactionsTotal)
 	router.GET("/transactions/customers/sorted", getSortedCustomerIds)
 
-	router.Run(":8082")
+	router.Run(":8080")
 }

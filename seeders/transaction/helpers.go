@@ -59,7 +59,7 @@ func generateTransaction(customerMax, productMax uint) (string, string) {
 func getTotal(maxId uint) (uint, []uint) {
     // generate random product ids to use
     ids := []uint{}
-    for i := 0; i < 1 + rand.Intn(15); i++ {
+    for i := 0; i < 1 + rand.Intn(2); i++ {
         ids = append(ids, 1+ uint(rand.Int63n(int64(maxId))))
     }
 

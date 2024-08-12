@@ -17,12 +17,17 @@ type DB struct {
 
 var db *DB
 
+func (db *DB) IsNil() bool {
+    return db == nil || db.conn == nil
+}
+
 func Get() *DB {
 	if db != nil {
 		return db
 	}
 
 	dsn := os.Getenv("DB_URL")
+    log.Println(dsn)
 	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		NowFunc: func() time.Time {
 			return time.Now().UTC()

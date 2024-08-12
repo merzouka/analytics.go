@@ -37,6 +37,9 @@ spec:
       containers:
         - name: db
           image: postgres:alpine
+          resources:
+            limits:
+              memory: 1Gi
           env:
             - name: POSTGRES_DB
               value: customerdb
