@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -36,19 +37,25 @@ func getSource() data.DataSource {
 	return source
 }
 
-func request(endpoint string) (string, error) {
+func request(endpoint string, v any) error {
     resp, err := http.Get(fmt.Sprintf("%s/%s", os.Getenv("TRANSACTION_SERVICE"), endpoint))
     if err != nil || resp.Body == nil {
-        return "", errors.New("failed to connect to transactions service")
+        return errors.New("failed to connect to transactions service")
     }
     defer resp.Body.Close()
 
     buffer := new(bytes.Buffer)
     _, err = io.Copy(buffer, resp.Body)
     if err != nil {
-        return "", errors.New("failed to connect to transactions service")
+        return errors.New("failed to connect to transactions service")
     }
-    return buffer.String(), nil
+
+    err = json.Unmarshal(buffer.Bytes(), v)
+    if err != nil {
+        return err
+    }
+
+    return nil
 }
 
 func customerTransactions(ctx *gin.Context) {
@@ -61,7 +68,8 @@ func customerTransactions(ctx *gin.Context) {
 	}
 
     endpoint := fmt.Sprintf("transactions/customers/%d", uint(id))
-    resp, err := request(endpoint)
+    var resp map[string]interface{}
+    err = request(endpoint, &resp)
     if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "failed to connect to transactions service",
@@ -82,7 +90,8 @@ func customerTotal(ctx *gin.Context) {
 	}
 
     endpoint := fmt.Sprintf("transactions/customers/%d/total", uint(id))
-    resp, err := request(endpoint)
+    var resp map[string]interface{}
+    err = request(endpoint, &resp)
     if err != nil {
 		ctx.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "failed to connect to transactions service",

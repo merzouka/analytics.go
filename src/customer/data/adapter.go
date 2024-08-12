@@ -36,26 +36,36 @@ func GetSource() *DataSource {
     return &source
 }
 
+func getIds(data []interface{}) []uint {
+    ids := []uint{}
+    for _, d := range data {
+        ids = append(ids, uint(d.(float64)))
+    }
+    return ids
+}
+
 func GetSortedCustomers(pageSize, page string) []models.Customer {
     resp, err := http.Get(fmt.Sprintf("%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")))
     if err != nil || resp.Body == nil {
-        log.Println("get request failed")
+        log.Println(err)
         return nil
     }
 
     buffer := new(bytes.Buffer)
     if _, err := io.Copy(buffer, resp.Body); err != nil {
-        log.Println("failed to retrieve ids")
+        log.Println(err)
         return nil
     }
 
-    var result map[string][]uint
+    var result map[string]interface{}
     if json.Unmarshal(buffer.Bytes(), &result) != nil {
         log.Println("failed to parse ids")
         return nil
     }
 
-    ids := result["result"]
+    log.Println(result)
+    ids := getIds(result["data"].([]interface{}))
+    log.Println(fmt.Sprintf("ids: %v", ids))
     ids = helpers.SubsetIds(helpers.CompleteIds(ids), pageSize, page)
     return source.GetCustomersInOrder(ids)
 }

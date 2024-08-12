@@ -9,17 +9,17 @@ import (
 )
 
 func main() {
-    router := gin.Default()
-    (*data.GetRetriver()).Close()
-    if err := godotenv.Load(); err != nil {
-        log.Fatal(err)
-    }
+	router := gin.Default()
+	(*data.GetRetriver()).Close()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	}
 
-    router.GET("/transactions/:id", getTransaction)
-    router.GET("/transactions", getTransactions)
-    router.GET("/transactions/customers/:id", getCustomerTransactions)
-    router.GET("/transactions/customers/:id/total", getTransactionsTotal)
-    router.GET("/transactions/customers/sorted", getSortedCustomerIds)
+	router.GET("/transactions/:id", getTransaction)
+	router.GET("/transactions", getTransactions)
+	router.GET("/transactions/customers/:id", getCustomerTransactions)
+	router.GET("/transactions/customers/:id/total", getTransactionsTotal)
+	router.GET("/transactions/customers/sorted", getSortedCustomerIds)
 
-    router.Run(":8082")
+	router.Run(":8082")
 }

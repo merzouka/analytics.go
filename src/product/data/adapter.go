@@ -17,8 +17,9 @@ var retriever Retriever
 
 func GetRetriever() Retriever {
     if retriever != nil {
-        return nil
+        return retriever
     }
+
     mode := os.Getenv("MODE")
     if mode == "" {
         mode = "CACHE"

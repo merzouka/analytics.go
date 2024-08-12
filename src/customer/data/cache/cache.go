@@ -53,13 +53,15 @@ func (c Cache) GetCustomersInOrder(ids []uint) []models.Customer {
     customersIdx := 0
     result := []models.Customer{}
     for _, id := range ids {
-        if customers[customersIdx].ID == id {
+        if len(customers) > 0 && customers[customersIdx].ID == id {
             result = append(result, customers[customersIdx])
             customersIdx++
             continue
         }
-        result = append(result, dbCustomers[missesIdx])
-        missesIdx++
+        if len(dbCustomers) > 0 {
+            result = append(result, dbCustomers[missesIdx])
+            missesIdx++
+        }
     }
 
     return result
