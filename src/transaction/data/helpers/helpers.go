@@ -11,14 +11,9 @@ import (
 	"strings"
 
 	"github.com/merzouka/analytics.go/transaction/data/models"
+	"github.com/merzouka/analytics.go/transaction/responses"
 	"gorm.io/gorm"
 )
-
-type Product struct {
-        ID    uint   `gorm:"primaryKey,autoIncrement" json:"id"`
-        Name  string `json:"name"`
-        Price uint   `json:"price"`
-}
 
 // ExtractProductIds extracts ids from products in productsArrays removing duplicates. Returns the list of ids
 func ExtractProductIds(productsArrays ...[]models.TransactionProduct) []uint {
@@ -47,7 +42,7 @@ func StringifyArray(ids []uint) []string {
 
 // GetProducts queries the 'products' service and returns products matching ids.
 // Returns nil on failure
-func GetProducts(target string, ids []uint) []Product {
+func GetProducts(target string, ids []uint) []responses.Product {
     url := fmt.Sprintf("%s?ids=%s", target, strings.Join(StringifyArray(ids), ","))
     log.Println(url)
     resp, err := http.Get(url)
@@ -64,7 +59,7 @@ func GetProducts(target string, ids []uint) []Product {
         return nil
     }
 
-    var products []Product
+    var products []responses.Product
     if json.Unmarshal(buffer.Bytes(), &products) != nil {
         log.Println(err)
         return nil
