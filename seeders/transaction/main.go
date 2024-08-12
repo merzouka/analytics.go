@@ -102,7 +102,7 @@ func main() {
     if prodDir == "" {
         prodDir = "./sql/product"
     }
-    def, err := os.Create(fmt.Sprintf("%s/01-create-table.sql", prodDir))
+    def, err := os.Create(fmt.Sprintf("%s/01-create-tables.sql", prodDir))
     if err != nil {
         log.Fatal(err)
     }
