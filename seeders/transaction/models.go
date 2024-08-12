@@ -7,7 +7,7 @@ import (
 
 type Transaction struct {
 	ID        uint      `gorm:"primaryKey;autoIncrement" json:"id"`
-	ClientID  uint      `json:"clientId"`
+	CustomerID  uint      `json:"clientId"`
 	CreatedAt time.Time `json:"createdAt"`
 	Total     uint
 	Products  []TransactionProduct
@@ -25,7 +25,7 @@ type Product struct {
 }
 
 func (t Transaction) String() string {
-    return fmt.Sprintf("(%d, %d, %d, '%s')", uint(t.ID), uint(t.ClientID), uint(t.Total), t.CreatedAt.Format("2006-01-02 15:04:05-07"))
+    return fmt.Sprintf("(%d, %d, %d, '%s')", uint(t.ID), uint(t.CustomerID), uint(t.Total), t.CreatedAt.Format("2006-01-02 15:04:05-07"))
 }
 
 func (tp TransactionProduct) String() string {

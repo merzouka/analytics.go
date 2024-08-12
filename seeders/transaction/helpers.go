@@ -50,7 +50,7 @@ func generateTransaction(customerMax, productMax uint) (string, string) {
 
     return Transaction{
         ID: id,
-        ClientID: randId(customerMax),
+        CustomerID: randId(customerMax),
         Total: total,
         CreatedAt: time.Now().UTC(),
     }.String(), strings.Join(rows, ",\n")
@@ -60,12 +60,12 @@ func getTotal(maxId uint) (uint, []uint) {
     // generate random product ids to use
     ids := []uint{}
     for i := 0; i < 1 + rand.Intn(15); i++ {
-        ids = append(ids, uint(rand.Int63n(int64(maxId))))
+        ids = append(ids, 1+ uint(rand.Int63n(int64(maxId))))
     }
 
     total := uint(0)
     for _, id := range ids {
-        total += products[id].Price
+        total += products[id - 1].Price
     }
 
     return total, ids

@@ -15,8 +15,10 @@ const (
 )
 
 func define(ptr *os.File) {
-    def := `CREATE TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, client_id BIGINT, total BIGINT, created_at TIMESTAMP WITH TIME ZONE);
-CREATE TABLE IF NOT EXISTS transaction_products (transaction_id BIGINT, product_id BIGINT);`
+    def := `CREATE TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, customer_id BIGINT, total BIGINT, created_at TIMESTAMP WITH TIME ZONE);
+CREATE TABLE IF NOT EXISTS transaction_products (transaction_id BIGINT, product_id BIGINT);
+TRUNCATE TABLE transactions RESTART IDENTITY CASCADE;
+TRUNCATE TABLE transaction_products RESTART IDENTITY CASCADE;`
 
     _, err := ptr.WriteString(def)
     if err != nil {
@@ -36,7 +38,7 @@ func seed(ptr *os.File, pivotPtr *os.File) {
         transaction, pivot := generateTransaction(customerMaxId, productMaxId)
         if i == 0 {
             query.WriteString(`TRUNCATE TABLE transactions RESTART IDENTITY CASCADE;
-INSERT INTO transactions (id, client_id, total, created_at) VALUES `)
+INSERT INTO transactions (id, customer_id, total, created_at) VALUES `)
             query.WriteString(transaction)
             pivotQuery.WriteString(`TRUNCATE TABLE transaction_products RESTART IDENTITY CASCADE;
 INSERT INTO transaction_products (transaction_id, product_id) VALUES `)
