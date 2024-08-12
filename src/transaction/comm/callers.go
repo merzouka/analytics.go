@@ -34,7 +34,6 @@ func StringifyArray(ids []uint) []string {
 // Returns nil on failure
 func GetProducts(ids []uint) []Product {
 	url := fmt.Sprintf("%s?ids=%s", getUrl("/products"), strings.Join(StringifyArray(ids), ","))
-	log.Println(url)
 	resp, err := http.Get(url)
 	if err != nil || resp.Body == nil {
 		log.Println(err)

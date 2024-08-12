@@ -69,7 +69,6 @@ func getTransactions(ctx *gin.Context) {
 }
 
 func getCustomerTransactions(ctx *gin.Context) {
-	log.Println(ctx.Param("id"))
 	ids, err := getIds(ctx.Param("id"))
 	if err != nil {
 		log.Println(err)

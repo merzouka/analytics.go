@@ -55,7 +55,6 @@ func getCustomerTransactionIds(id uint) []uint {
 		log.Println("query for ids failed")
 		return nil
 	}
-    log.Println(fmt.Sprintf("ids of customer transactions %v", ids))
 	return ids
 }
 

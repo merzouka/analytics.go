@@ -84,7 +84,6 @@ func cacheTransactions(cache *redis.Client, transactions []models.Transaction) {
 		}
 	}
 
-	log.Println(fmt.Sprintf("failed to cache transactions: %v", failed))
 }
 
 func dbQueryTransactions(db *gorm.DB, cache *redis.Client, ids []uint) []models.Transaction {
@@ -146,7 +145,6 @@ func (c Cache) GetTransactions(ids []uint) []models.Transaction {
 	}
 	result, misses := cacheQueryTransactions(cache, ids)
 	transactions := extractTransactions(result)
-    log.Println(fmt.Sprintf("cache transactions %#v", transactions))
 	if len(misses) != 0 {
 		db := db.Get()
 		if db == nil {
