@@ -80,7 +80,9 @@ func cacheProducts(cache *redis.Client, products []models.Product) {
             failed =append(failed, product.ID)
         }
     }
-    log.Println(fmt.Sprintf("failed to cache ids: %v", failed))
+    if len(failed) > 0 {
+        log.Println(fmt.Sprintf("failed to cache ids: %v", failed))
+    }
 }
 
 func getProductsFromDB(db *gorm.DB, cache *redis.Client, ids []uint) []models.Product {

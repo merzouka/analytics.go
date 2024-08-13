@@ -50,7 +50,7 @@ func GetSortedCustomers(pageSize, page string) []models.Customer {
         return nil
     }
 
-    resp, err := http.Get(fmt.Sprintf("%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")))
+    resp, err := http.Get(fmt.Sprintf("http://%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")))
     if err != nil || resp.Body == nil {
         log.Println(err)
         return nil

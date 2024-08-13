@@ -103,5 +103,7 @@ func customerTotal(ctx *gin.Context) {
 }
 
 func sortedCustomers(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, data.GetSortedCustomers(ctx.Query("pageSize"), ctx.Query("page")))
+	ctx.JSON(http.StatusOK, map[string]interface{}{
+        "result": data.GetSortedCustomers(ctx.Query("pageSize"), ctx.Query("page")),
+    })
 }
