@@ -53,6 +53,10 @@ func (c *Cache) Close() {
 	}
 
 	c.conn.Close()
+    if db.Get().IsInvalid() {
+        return
+    }
+    db.Get().Close()
 }
 
 func getKey(id uint) string {
