@@ -15,32 +15,29 @@ type DB struct {
 	conn *gorm.DB
 }
 
-var db *DB
+var db *DB = &DB{}
 
-func (db *DB) IsNil() bool {
-    return db == nil || db.conn == nil
+func (db *DB) IsInvalid() bool {
+    return db.conn == nil
 }
 
 func Get() *DB {
-	if db != nil {
+	if !db.IsInvalid() {
 		return db
 	}
 
 	dsn := os.Getenv("DB_URL")
-    log.Println(dsn)
 	conn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
 	})
+	db.conn = conn
 	if err != nil {
 		log.Println("failed to connect to database")
-		return nil
+        db.conn = nil
 	}
 
-	db = &DB{
-		conn: conn,
-	}
 	return db
 }
 
@@ -53,7 +50,7 @@ func (db *DB) Conn() *gorm.DB {
 }
 
 func (db *DB) Close() {
-	if db == nil {
+	if db.IsInvalid() {
 		return
 	}
 	sqlDB, err := db.conn.DB()
@@ -66,7 +63,7 @@ func (db *DB) Close() {
 }
 
 func (db DB) GetTransactions(ids []uint) []models.Transaction {
-	if db.conn == nil {
+	if db.IsInvalid() {
 		log.Println("failed to retrieve transactions: not connected to database")
 		return nil
 	}
@@ -81,7 +78,7 @@ func (db DB) GetTransactions(ids []uint) []models.Transaction {
 }
 
 func (db DB) GetTransaction(id uint) *models.TransactionProductIDs {
-	if db.conn == nil {
+	if db.IsInvalid() {
 		log.Println("failed to retrieve transaction, not connected to database")
 		return nil
 	}

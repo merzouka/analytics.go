@@ -14,16 +14,12 @@ import (
 
 type Retriever interface {
 	Close()
-    IsNil() bool
+    IsInvalid() bool
 	GetTransaction(id uint) *models.TransactionProductIDs
 	GetTransactions(ids []uint) []models.Transaction
 }
 
-var retriever struct {
-    initialized bool
-    src Retriever
-} = struct{initialized bool; src Retriever}{}
-
+var retriever Retriever
 func GetTransaction(retriever Retriever, id uint) map[string]interface{} {
 	if retriever == nil {
 		log.Println("retriever uninitialized")
@@ -93,27 +89,18 @@ func GetCustomerTransactions(retriever Retriever, id uint) []responses.Transacti
 }
 
 func GetRetriever() Retriever {
-    if retriever.initialized && retriever.src.IsNil() {
-		return retriever.src
-	}
-
 	mode := os.Getenv("MODE")
 	if mode == "" {
 		mode = "CACHE"
 	}
 
-    var src Retriever
 	if mode == "CACHE" {
-		src = cache.Get()
+		retriever = cache.Get()
 	} else {
-		src = db.Get()
+		retriever = db.Get()
 	}
-    if !src.IsNil() {
-        retriever.initialized = true
-        retriever.src = src
-    }
 
-	return retriever.src
+	return retriever
 }
 
 func GetSortedCustomerIds() []uint {

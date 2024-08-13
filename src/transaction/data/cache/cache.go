@@ -18,14 +18,14 @@ type Cache struct {
 	conn *redis.Client
 }
 
-var cache *Cache
+var cache *Cache = &Cache{}
 
-func (cache *Cache) IsNil() bool {
+func (cache *Cache) IsInvalid() bool {
     return cache.conn == nil
 }
 
 func Get() *Cache {
-	if cache != nil {
+	if !cache.IsInvalid() {
 		return cache
 	}
 
@@ -37,21 +37,18 @@ func Get() *Cache {
 		Password: password,
 		DB:       0,
 	})
+    cache.conn = client
 
 	if client.Ping(context.Background()).Err() != nil {
 		log.Println("failed to connect to cache")
-		return nil
-	}
-
-	cache = &Cache{
-		conn: client,
+        cache.conn = nil
 	}
 
 	return cache
 }
 
 func (c *Cache) Close() {
-	if c == nil || c.conn == nil {
+	if c.IsInvalid() {
 		return
 	}
 

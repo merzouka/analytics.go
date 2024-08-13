@@ -40,7 +40,7 @@ func getTransactionsTotal(ctx *gin.Context) {
 	clientId := ids[0]
 
 	retriever := data.GetRetriever()
-    if retriever.IsNil() {
+    if retriever.IsInvalid() {
 		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
 		return
     }
@@ -57,7 +57,7 @@ func getTransaction(ctx *gin.Context) {
 	transactionId := ids[0]
 
 	retriever := data.GetRetriever()
-    if retriever.IsNil() {
+    if retriever.IsInvalid() {
 		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
 		return
     }
@@ -73,7 +73,7 @@ func getTransactions(ctx *gin.Context) {
 	}
 
 	retriever := data.GetRetriever()
-    if retriever.IsNil() {
+    if retriever.IsInvalid() {
 		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
 		return
     }
@@ -90,7 +90,7 @@ func getCustomerTransactions(ctx *gin.Context) {
 
 	clientId := ids[0]
 	retriever := data.GetRetriever()
-    if retriever.IsNil() {
+    if retriever.IsInvalid() {
 		ctx.JSON(http.StatusBadRequest, responses.New(nil).AddError(errors.New("retriever is nil")))
 		return
     }
