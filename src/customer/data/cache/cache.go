@@ -24,26 +24,23 @@ type CustomerTransactions struct {
 }
 
 func (c Cache) Close() {
-    cache := c.conn
-    db := models.GetConn()
-    cache.Close()
-    sqlDB, err := db.DB()
-    if err != nil {
-        log.Println("closing database connection failed")
+    db.GetInstance().Close()
+    if c.IsInvalid() {
         return
     }
 
-    sqlDB.Close()
+    c.conn.Close()
 }
 
 func (c Cache) GetCustomersInOrder(ids []uint) []models.Customer {
-    cache := c.conn
-    if cache == nil {
+    if c.IsInvalid() {
         log.Println(CACHE_CONNECTION_ERROR)
         return nil
     }
+    cache := c.conn
+
     db := db.GetInstance()
-    if db == nil {
+    if db.IsInvalid() {
         return nil
     }
 
@@ -67,10 +64,14 @@ func (c Cache) GetCustomersInOrder(ids []uint) []models.Customer {
     return result
 }
 
-var cache *Cache
+func (c *Cache) IsInvalid() bool {
+    return c.conn == nil
+}
+
+var cache *Cache = &Cache{}
 
 func GetInstance() *Cache {
-    if cache != nil {
+    if !cache.IsInvalid() {
         return cache 
     }
 
@@ -86,16 +87,13 @@ func GetInstance() *Cache {
         DB: 0,
     })
 
-    err := client.Ping(context.Background()).Err()
-    if err != nil {
-        log.Println(CACHE_CONNECTION_ERROR)
-        return nil
-    }
-    log.Println("connected to cache successfully")
+    cache.conn = client
 
-    cache = &Cache{
-        conn: client,
+    if client.Ping(context.Background()).Err() != nil {
+        log.Println(CACHE_CONNECTION_ERROR)
+        cache.conn = nil
     }
+
 
     return cache
 }

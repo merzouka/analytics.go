@@ -19,7 +19,11 @@ type DB struct{
 }
 
 func (db DB) Close() {
-    sqlDB, err := models.GetConn().DB()
+    if db.IsInvalid() {
+        return
+    }
+
+    sqlDB, err := db.conn.DB()
     if err != nil {
         log.Println("closing database connection failed")
         return
@@ -38,11 +42,11 @@ func StringifyArray(arr []uint) []string {
 }
 
 func (db DB) GetCustomersInOrder(ids []uint) []models.Customer {
-    conn := db.conn
-    if conn == nil {
+    if db.IsInvalid() {
         log.Println("failed to connect to database")
         return nil
     }
+    conn := db.conn
 
     var customers []models.Customer
     conn.
@@ -53,19 +57,21 @@ func (db DB) GetCustomersInOrder(ids []uint) []models.Customer {
     return customers
 }
 
-var db *DB
+var db *DB = &DB{}
+
+func (db *DB) IsInvalid() bool {
+    return db.conn == nil
+}
 
 func GetInstance() *DB {
-    if db != nil {
+    if !db.IsInvalid() {
         return db
     }
 
-    conn := models.GetConn()
-    if conn != nil {
-        db = &DB{
-            conn: conn,
-        } 
-    }
+    db = &DB{
+        conn: models.GetConn(),
+    } 
+
     return db
 }
 

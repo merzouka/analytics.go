@@ -17,6 +17,7 @@ import (
 
 type DataSource interface{
     GetCustomersInOrder(ids []uint) []models.Customer
+    IsInvalid() bool
     Close()
 }
 
@@ -45,6 +46,10 @@ func getIds(data []interface{}) []uint {
 }
 
 func GetSortedCustomers(pageSize, page string) []models.Customer {
+    if source.IsInvalid() {
+        return nil
+    }
+
     resp, err := http.Get(fmt.Sprintf("%s/transactions/customers/sorted", os.Getenv("TRANSACTION_SERVICE")))
     if err != nil || resp.Body == nil {
         log.Println(err)
@@ -63,9 +68,7 @@ func GetSortedCustomers(pageSize, page string) []models.Customer {
         return nil
     }
 
-    log.Println(result)
     ids := getIds(result["data"].([]interface{}))
-    log.Println(fmt.Sprintf("ids: %v", ids))
     ids = helpers.SubsetIds(helpers.CompleteIds(ids), pageSize, page)
     return source.GetCustomersInOrder(ids)
 }
