@@ -17,10 +17,14 @@ type Cache struct {
     conn *redis.Client
 }
 
-var cache *Cache
+var cache *Cache = &Cache{}
+
+func (c *Cache) IsInvalid() bool {
+    return c.conn == nil
+}
 
 func Get() *Cache {
-    if cache != nil {
+    if !cache.IsInvalid() {
         return cache
     }
 
@@ -37,20 +41,17 @@ func Get() *Cache {
         DB: 0,
     })
 
+    cache.conn = conn
     if conn == nil || conn.Ping(context.Background()).Err() != nil {
         log.Println("failed to connect to cache")
-        return nil
-    }
-
-    cache = &Cache{
-        conn: conn,
+        cache.conn = nil
     }
 
     return cache
 }
 
 func (cache *Cache) Close() {
-    if cache == nil {
+    if cache.IsInvalid() {
         return
     }
 
@@ -125,13 +126,17 @@ func getProductsFromCache(cache *redis.Client, ids []uint) ([]models.Product, []
 }
 
 func (cache Cache) GetProducts(ids []uint) []models.Product {
-    conn := cache.conn
-    if conn == nil {
+    if cache.IsInvalid() {
         return nil
     }
-    db := db.Get().Conn()
 
+    conn := cache.conn
     products, misses := getProductsFromCache(conn, ids)
-    products = append(products, getProductsFromDB(db, conn, misses)...)
+
+    tmp := db.Get()
+    if !tmp.IsInvalid() {
+        db := db.Get().Conn()
+        products = append(products, getProductsFromDB(db, conn, misses)...)
+    }
     return products
 }

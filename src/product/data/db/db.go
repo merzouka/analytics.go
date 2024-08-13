@@ -14,20 +14,23 @@ type DB struct {
     conn *gorm.DB
 }
 
-var db *DB
+var db *DB = &DB{}
+
+func (db *DB) IsInvalid() bool {
+    return db.conn == nil
+}
 
 func Get() *DB {
-    if db != nil {
+    if !db.IsInvalid() {
         return db
     }
 
     dsn := os.Getenv("DB_URL")
     var err error
-    db = &DB{}
     db.conn, err = gorm.Open(postgres.Open(dsn), &gorm.Config{}) 
     if err != nil {
         log.Println(err)
-        return nil
+        db.conn = nil
     }
 
     return db
@@ -47,10 +50,10 @@ func (db *DB) Close() {
 }
 
 func (db DB) GetProducts(ids []uint) []models.Product {
-    conn := db.conn
-    if conn == nil {
+    if db.IsInvalid() {
         return nil
     }
+    conn := db.conn
 
     var products []models.Product
 

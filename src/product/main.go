@@ -13,8 +13,6 @@ import (
     "github.com/joho/godotenv"
 )
 
-var down bool = false
-
 func getIds(query string) []uint {
     if query == "" {
         var ids []uint
@@ -40,37 +38,35 @@ func main() {
     if err := godotenv.Load(); err != nil {
         log.Println(err)
     }
+    defer data.GetRetriever().Close()
 
-    var retriever data.Retriever
     router.GET("/ping", func(ctx *gin.Context) {
         ctx.String(http.StatusOK, "PONG\n")
     })
 
     router.GET("/products", func(ctx *gin.Context) {
-        r := data.GetRetriever()
-        retriever = r
+        retriever := data.GetRetriever()
         ids := getIds(ctx.Query("ids"))
-        if ids == nil || r == nil {
+        if ids == nil || retriever.IsInvalid() {
             ctx.JSON(http.StatusInternalServerError, map[string]string{
                 "error": "failed to retrieve products",
             })
             return 
         }
-        ctx.JSON(http.StatusOK, r.GetProducts(ids))
+        ctx.JSON(http.StatusOK, retriever.GetProducts(ids))
     })
 
     router.GET("/product/:id", func(ctx *gin.Context) {
-        r := data.GetRetriever()
-        retriever = r
+        retriever := data.GetRetriever()
         ids := getIds(ctx.Param("id"))
-        if ids == nil || r == nil {
+        if ids == nil || retriever.IsInvalid() {
             ctx.JSON(http.StatusInternalServerError, map[string]string{
                 "error": "failed to retrieve products",
             })
             return 
         }
 
-        products := r.GetProducts(ids)
+        products := retriever.GetProducts(ids)
         if len(products) == 0 {
             ctx.JSON(http.StatusOK, nil)
             return
@@ -79,7 +75,4 @@ func main() {
     })
 
     router.Run(":8080")
-    if retriever != nil {
-        retriever.Close()
-    }
 }

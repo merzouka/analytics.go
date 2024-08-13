@@ -10,30 +10,23 @@ import (
 
 type Retriever interface {
     Close()
+    IsInvalid() bool
     GetProducts(ids []uint) []models.Product
 }
 
 var retriever Retriever
 
 func GetRetriever() Retriever {
-    if retriever != nil {
-        return retriever
-    }
-
     mode := os.Getenv("MODE")
     if mode == "" {
         mode = "CACHE"
     }
 
     if mode == "CACHE" {
-        if db.Get() == nil {
-            return nil
-        }
-
         retriever = cache.Get()
-        return retriever
+    } else {
+        retriever = db.Get()
     }
 
-    retriever = db.Get()
     return retriever
 }
