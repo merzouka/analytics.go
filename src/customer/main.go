@@ -24,5 +24,5 @@ func main() {
 	router.GET("/customers/sorted", sortedCustomers)
 
 	log.Println("successfully established connection")
-	router.Run(":8080")
+	router.Run(":8081")
 }

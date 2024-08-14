@@ -21,7 +21,7 @@ func (r Response) SetData(data func() (interface{}, error)) Response {
 
 	start := time.Now()
 	r.Data, err = data()
-	r.Succeeded = err != nil
+	r.Succeeded = err == nil
 
 	if err != nil {
 		r.Errors = append(r.Errors, err.Error())
@@ -44,6 +44,7 @@ type SSEResponse struct {
 	Source   string        `json:"source"`
 	Data     interface{}   `json:"data"`
 	Duration string        `json:"duration"`
+    Success  bool          `json:"success"`
 }
 
 func NewSSE(source string) SSEResponse {
@@ -58,8 +59,9 @@ func (r SSEResponse) SetDuration(t time.Duration) SSEResponse {
 	return r
 }
 
-func (r SSEResponse) SetData(data interface{}) SSEResponse {
+func (r SSEResponse) SetData(data interface{}, success bool) SSEResponse {
 	r.Data = data
+    r.Success = success
 	return r
 }
 

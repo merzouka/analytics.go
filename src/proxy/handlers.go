@@ -179,7 +179,7 @@ func genEndpoint(name string) string {
 var ch chan SSEResponse
 
 func sse(path string, response Response) {
-    ch <- NewSSE(response.Source).SetData(path).SetDuration(response.Duration)
+    ch <- NewSSE(response.Source).SetData(path, response.Succeeded).SetDuration(response.Duration)
 }
 
 func genExecuters(source, query string, aggregate func(string, time.Duration)) map[string][]func() {
@@ -266,7 +266,9 @@ func bulk(ctx *gin.Context) {
 	for source, results := range totals {
 		averages[source] = map[string]time.Duration{}
 		for name, total := range results {
-			averages[source][name] = total / time.Duration(requests[name])
+            if (requests[name] > 0) {
+			    averages[source][name] = total / time.Duration(requests[name])
+            }
 		}
 	}
     totalsStr := map[string]map[string]string{}
@@ -283,6 +285,6 @@ func bulk(ctx *gin.Context) {
 	ch <- NewSSE("").SetData(map[string]interface{}{
 		"totals":   totalsStr,
 		"averages": averagesStr,
-	}).Final()
+	}, true).Final()
     <-streamCh
 }
