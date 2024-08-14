@@ -1,5 +1,7 @@
 #!/bin/bash
 
+service="customer"
+
 kubectl apply -f seed.yaml
 jobs=($(kubectl get jobs.batch -o name))
 job=${jobs[0]}

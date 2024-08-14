@@ -10,7 +10,7 @@ get_service_url () {
 }
 
 db_service="database"
-db_name="$servicedb"
+db_name="$service""db"
 db_password=$(echo -n $(cat .db))
 kubectl create secret generic db-secret --from-literal=db-password=$db_password
 

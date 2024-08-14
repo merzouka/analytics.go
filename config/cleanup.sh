@@ -1,6 +1,6 @@
 #!/bin/bash
 
-namespaces=("customer" "transaction" "product")
+namespaces=("customer" "transaction" "product" "proxy")
 
 for ns in ${namespaces[@]}; do
     printf "\e[1m                               $ns\e[m\n"
