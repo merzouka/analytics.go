@@ -2,11 +2,11 @@
 The goal of this project is to test out the change in performance when using a cache instead of a direct database access
 
 # Usage
-run the back-end using the script `init.sh` in the _config_ folder and run the front-end under _src/frotend_ which would allow you to 
+run the back-end using the script `init.sh` in the _config_ folder and run the front-end under _src/frontend_ which would allow you to 
 specify the number of queries to be run by a proxy for each type, and observer the results in real time.
 
 # Seeding
-you can change the number of rows using the _ROWS_NUMBER_ env variable in the _init.yaml_ configuration files; to find out more information about 
+you can change the number of rows using the _ROWS_NUMBER_ environment variable in the _init.yaml_ configuration files; to find out more information about 
 what constraints do apply view the respective seeding documentation under _seeders_.
 
 # Observations
