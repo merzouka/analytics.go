@@ -57,16 +57,18 @@ export default function Home() {
         <div className="w-dvw h-dvh bg-black flex items-center justify-center p-16 flex-col gap-y-8">
             <RequestForm handler={handleSubmit} />
             <div className="flex flex-row gap-x-12 flex-grow bg-yellow w-full">
-                <div className="h-full text-white flex flex-col w-full">
+                <div className="h-full text-white flex flex-col flex-grow">
                     <h2 className="font-bold text-4xl mb-3">Database</h2>
                     <div className="flex-grow border border-gray-800 relative">
                         <div className="absolute top-0 right-0 left-0 bottom-0 overflow-scroll" ref={outputRefDB}>
                         </div>
                     </div>
                 </div>
-                <div className="h-full text-white flex-col flex w-full">
+                <div className="h-full text-white flex-col flex flex-grow">
                     <h2 className="font-bold text-4xl mb-3">Cache</h2>
-                    <div className="flex-grow border border-gray-800" ref={outputRefCache}>
+                    <div className="flex-grow border border-gray-800 relative">
+                        <div className="absolute top-0 right-0 left-0 bottom-0 overflow-scroll" ref={outputRefCache}>
+                        </div>
                     </div>
                 </div>
             </div>

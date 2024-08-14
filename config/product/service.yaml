@@ -47,7 +47,7 @@ metadata:
   name: cache-product
 spec:
   selector:
-    app: 
+    app: product
     type: api
     mode: cache
   ports:

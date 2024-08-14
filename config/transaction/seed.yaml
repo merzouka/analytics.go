@@ -66,7 +66,7 @@ spec:
             - name: PRODUCT_OUTPUT_DIR
               value: /init-product
             - name: ROWS_NUMBER
-              value: "customers:1000,products,transactions:1000000"
+              value: "customers:1000,products:1000,transactions:1000000"
           volumeMounts:
             - name: init-transaction
               mountPath: /init-transaction

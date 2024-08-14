@@ -76,10 +76,6 @@ func getCustomersFromDB(db *gorm.DB, cache *redis.Client, ids []uint) []models.C
         return nil
     }
 
-    err := cacheCustomers(cache, customers)
-    if err != nil {
-        log.Println(err)
-    }
-
+    go cacheCustomers(cache, customers)
     return customers
 }

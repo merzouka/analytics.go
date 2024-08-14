@@ -96,7 +96,7 @@ func getProductsFromDB(db *gorm.DB, cache *redis.Client, ids []uint) []models.Pr
         return nil
     }
 
-    cacheProducts(cache, products)
+    go cacheProducts(cache, products)
     return products
 }
 
