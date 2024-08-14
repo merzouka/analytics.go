@@ -40,7 +40,7 @@ export default function Home() {
     const outputRefCache = useRef<HTMLDivElement>(null);
 
     function handleSubmit(values: z.infer<typeof formSchema>) {
-        const url = `http://localhost:8080/bulk?requests=customer_transactions:${values.customerTransactions},customer_total:${values.customerTotal},customer_sorted:${values.customerSorted}`
+        const url = `http://localhost/bulk?requests=customer_transactions:${values.customerTransactions},customer_total:${values.customerTotal},customer_sorted:${values.customerSorted}`
         if (outputRefDB != null && outputRefDB.current != null) {
             outputRefDB.current.innerHTML = ""
         }
@@ -57,14 +57,14 @@ export default function Home() {
         <div className="w-dvw h-dvh bg-black flex items-center justify-center p-16 flex-col gap-y-8">
             <RequestForm handler={handleSubmit} />
             <div className="flex flex-row gap-x-12 flex-grow bg-yellow w-full">
-                <div className="flex-grow h-full text-white flex flex-col">
+                <div className="h-full text-white flex flex-col w-full">
                     <h2 className="font-bold text-4xl mb-3">Database</h2>
                     <div className="flex-grow border border-gray-800 relative">
                         <div className="absolute top-0 right-0 left-0 bottom-0 overflow-scroll" ref={outputRefDB}>
                         </div>
                     </div>
                 </div>
-                <div className="flex-grow h-full text-white flex-col flex">
+                <div className="h-full text-white flex-col flex w-full">
                     <h2 className="font-bold text-4xl mb-3">Cache</h2>
                     <div className="flex-grow border border-gray-800" ref={outputRefCache}>
                     </div>

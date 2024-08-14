@@ -57,7 +57,7 @@ func request(urlGetter UrlGetter, endpoint string) (interface{}, error) {
 type Executor = func(Request)
 
 var sourceUrlGetter map[string]UrlGetter = map[string]UrlGetter{
-	// "cache":    getCacheUrl,
+	"cache":    getCacheUrl,
 	"database": getDBUrl,
 }
 
