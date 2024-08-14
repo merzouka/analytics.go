@@ -4,6 +4,7 @@ CLUSTER_NAME=analytics
 
 kind create cluster --name $CLUSTER_NAME --config cluster.yaml
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml 
+kubectl apply -f ingress.yaml
 kubectl wait --namespace ingress-nginx \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
